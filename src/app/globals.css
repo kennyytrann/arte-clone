@@ -7,9 +7,14 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
+  --font-accent: var(--font-crimson-text), serif;
   --font-heading: var(--font-sans);
+  --color-arte-orange: var(--arte-orange);
+  --color-arte-orange-dark: var(--arte-orange-dark);
+  --color-arte-text: var(--arte-text);
+  --color-arte-text-muted: var(--arte-text-muted);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -49,6 +54,10 @@
 }
 
 :root {
+  --arte-orange: #fe6016;
+  --arte-orange-dark: #ee6325;
+  --arte-text: #222222;
+  --arte-text-muted: #858585;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
