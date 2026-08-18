@@ -1,12 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { SpaceProduct } from "./types";
+import type { CollectionProduct } from "./types";
 import { FilterBar } from "./FilterBar";
 import { FilterDrawer } from "./FilterDrawer";
 import { ProductGrid } from "./ProductGrid";
 
-export function CollectionContent({ products }: { products: SpaceProduct[] }) {
+export function CollectionContent({ products }: { products: CollectionProduct[] }) {
   const [activeFilter, setActiveFilter] = useState<"all" | "new">("all");
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -27,7 +27,11 @@ export function CollectionContent({ products }: { products: SpaceProduct[] }) {
         onOpenFilters={() => setFiltersOpen(true)}
       />
       <ProductGrid products={visibleProducts} />
-      <FilterDrawer open={filtersOpen} onClose={() => setFiltersOpen(false)} />
+      <FilterDrawer
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        inStockCount={products.length}
+      />
     </>
   );
 }

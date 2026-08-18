@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { SpaceProduct } from "./types";
-import { SpaceProductCard } from "./SpaceProductCard";
+import type { CollectionProduct } from "./types";
+import { CollectionProductCard } from "./CollectionProductCard";
 
 const BATCH_SIZE = 24;
 
-export function ProductGrid({ products }: { products: SpaceProduct[] }) {
+export function ProductGrid({ products }: { products: CollectionProduct[] }) {
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
@@ -43,7 +43,7 @@ export function ProductGrid({ products }: { products: SpaceProduct[] }) {
     <div className="mx-auto max-w-[1360px] px-4 pb-16 sm:px-6">
       <div className="grid grid-cols-2 gap-x-[15px] gap-y-[15px] md:grid-cols-3 md:gap-x-[15px] md:gap-y-[30px] lg:grid-cols-4 lg:gap-x-[30px] lg:gap-y-[30px]">
         {visibleProducts.map((product) => (
-          <SpaceProductCard key={product.handle} product={product} />
+          <CollectionProductCard key={product.handle} product={product} />
         ))}
       </div>
 

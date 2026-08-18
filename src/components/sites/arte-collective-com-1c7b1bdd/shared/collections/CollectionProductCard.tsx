@@ -1,9 +1,9 @@
 import Image from "next/image";
-import type { SpaceProduct } from "./types";
+import type { CollectionProduct } from "./types";
 
 const MONO = { fontFamily: "var(--font-roboto-mono), ui-monospace, monospace" };
 
-export function SpaceProductCard({ product }: { product: SpaceProduct }) {
+export function CollectionProductCard({ product }: { product: CollectionProduct }) {
   return (
     <div className="group relative w-full bg-[#e5e5e5]">
       {product.badges.length > 0 ? (

@@ -8,9 +8,10 @@ const PRICES = ["$39", "$49", "$59"];
 interface FilterDrawerProps {
   open: boolean;
   onClose: () => void;
+  inStockCount: number;
 }
 
-export function FilterDrawer({ open, onClose }: FilterDrawerProps) {
+export function FilterDrawer({ open, onClose, inStockCount }: FilterDrawerProps) {
   if (!open) return null;
 
   return (
@@ -57,7 +58,7 @@ export function FilterDrawer({ open, onClose }: FilterDrawerProps) {
         <FacetGroup title="Availability">
           <label className="flex items-center gap-2 py-1 text-[13px] text-arte-text-muted">
             <input type="checkbox" checked disabled className="accent-arte-orange" />
-            In stock (131)
+            In stock ({inStockCount})
           </label>
         </FacetGroup>
 

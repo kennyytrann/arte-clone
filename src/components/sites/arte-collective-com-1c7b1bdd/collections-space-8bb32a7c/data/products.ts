@@ -1,4 +1,4 @@
-import type { SpaceProduct } from "../types";
+import type { CollectionProduct } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/collections/types";
 
 const IMG =
   "/sites/arte-collective-com-1c7b1bdd/collections-space-8bb32a7c/images/products/";
@@ -6,7 +6,7 @@ const IMG =
 // Real catalog fetched from https://arte-collective.com/collections/space/products.json
 // (131 products). Price/compareAtPrice = smallest-variant price. `badges` scraped from
 // the live collection's rendered HTML (see docs/research/.../PAGE_TOPOLOGY.md).
-export const spaceProducts: SpaceProduct[] = [
+export const spaceProducts: CollectionProduct[] = [
   {
     handle: "it-feels-right-up-here",
     title: "It Feels right up here",

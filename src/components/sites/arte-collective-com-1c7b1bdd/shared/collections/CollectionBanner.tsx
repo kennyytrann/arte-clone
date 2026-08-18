@@ -1,17 +1,21 @@
 import Image from "next/image";
 import { Star } from "lucide-react";
+import type { CollectionRating } from "./types";
 
-const BANNER =
-  "/sites/arte-collective-com-1c7b1bdd/collections-space-8bb32a7c/images/theme/space-banner.png";
+interface CollectionBannerProps {
+  heroImage: string;
+  heroLabel: string;
+  rating: CollectionRating;
+}
 
-export function CollectionBanner() {
+export function CollectionBanner({ heroImage, heroLabel, rating }: CollectionBannerProps) {
   return (
     <section className="px-4 pt-[100px] sm:px-6">
       <div className="mx-auto flex max-w-[1330px] flex-col items-center gap-1">
         <div className="relative h-[115px] w-full overflow-hidden rounded-[6px] border border-[#D0D0D0] bg-[#F5F5F5]">
           <Image
-            src={BANNER}
-            alt="Space"
+            src={heroImage}
+            alt={heroLabel}
             fill
             priority
             sizes="(min-width: 1024px) 1360px, calc(100vw - 30px)"
@@ -22,7 +26,7 @@ export function CollectionBanner() {
             style={{ fontFamily: "var(--font-roboto-mono), ui-monospace, monospace" }}
           >
             <span className="h-1 w-1 shrink-0 rounded-full bg-arte-orange-dark" />
-            <span>Space</span>
+            <span>{heroLabel}</span>
           </div>
         </div>
 
@@ -32,7 +36,8 @@ export function CollectionBanner() {
         >
           <Star size={15} className="fill-arte-orange text-arte-orange" />
           <p className="m-0 text-[#5A5A5A]">
-            <span className="text-[#757578]">4.86</span>/5 +300 Reviews
+            <span className="text-[#757578]">{rating.value.toFixed(2)}</span>/5 +
+            {rating.reviewCount} Reviews
           </p>
         </div>
       </div>
