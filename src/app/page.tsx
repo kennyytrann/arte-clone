@@ -1,7 +1,7 @@
-import { AnnouncementBar } from "@/components/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/AnnouncementBar";
-import { Header } from "@/components/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/Header";
+import { AnnouncementBar } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/AnnouncementBar";
+import { Header } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/Header";
 import { Hero } from "@/components/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/Hero";
-import { EmailCaptureModal } from "@/components/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/EmailCaptureModal";
+import { EmailCaptureModal } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/EmailCaptureModal";
 import { LogoStrip } from "@/components/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/LogoStrip";
 import { ShopTheLook } from "@/components/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/ShopTheLook";
 import { CollectionsStack } from "@/components/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/CollectionsStack";
@@ -11,7 +11,7 @@ import { PrintOfWeekGrid } from "@/components/sites/arte-collective-com-1c7b1bdd
 import { InstagramStrip } from "@/components/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/InstagramStrip";
 import { FAQAccordion } from "@/components/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/FAQAccordion";
 import { DecorativeCTA } from "@/components/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/DecorativeCTA";
-import { Footer } from "@/components/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/Footer";
+import { Footer } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/Footer";
 import { ProductCarousel } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/ProductCarousel";
 import {
   bestsellerProducts,
