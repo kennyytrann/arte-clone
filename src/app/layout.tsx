@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Crimson_Text } from "next/font/google";
+import { Inter, Crimson_Text, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
@@ -12,6 +12,15 @@ const crimsonText = Crimson_Text({
   subsets: ["latin"],
   weight: ["400", "600", "700"],
   style: ["normal", "italic"],
+});
+
+// Used by the /collections/space page's `.ac-*` UI (filter chips, badges,
+// collection pill, trust bar) — the live site loads this exact family for
+// those elements via Google Fonts.
+const robotoMono = Roboto_Mono({
+  variable: "--font-roboto-mono",
+  subsets: ["latin"],
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
@@ -28,7 +37,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${crimsonText.variable} h-full antialiased`}
+      className={`${inter.variable} ${crimsonText.variable} ${robotoMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
