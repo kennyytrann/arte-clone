@@ -1,7 +1,7 @@
-import { AnnouncementBar } from "@/components/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/AnnouncementBar";
-import { Header } from "@/components/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/Header";
-import { EmailCaptureModal } from "@/components/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/EmailCaptureModal";
-import { Footer } from "@/components/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/Footer";
+import { AnnouncementBar } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/AnnouncementBar";
+import { Header } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/Header";
+import { EmailCaptureModal } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/EmailCaptureModal";
+import { Footer } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/Footer";
 import { PolicyPage } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/PolicyPage";
 import { termsOfServiceContent } from "@/components/sites/arte-collective-com-1c7b1bdd/policies-terms-of-service-3f95b8b5/content";
 
