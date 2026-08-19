@@ -6,8 +6,9 @@ import {
   getCollectionData,
 } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/collections/getCollectionData";
 
-export function generateStaticParams() {
-  return getAllCollectionHandles().map((handle) => ({ handle }));
+export async function generateStaticParams() {
+  const handles = await getAllCollectionHandles();
+  return handles.map((handle) => ({ handle }));
 }
 
 export async function generateMetadata({

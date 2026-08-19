@@ -22,12 +22,14 @@ export function ProductPageTemplate({ product }: { product: ProductData }) {
         </div>
       </section>
 
-      <ProductCarousel
-        eyebrow="Best sellers"
-        heading="You may"
-        headingAccent="also like"
-        products={product.relatedProducts}
-      />
+      {product.relatedProducts.length > 0 ? (
+        <ProductCarousel
+          eyebrow="Best sellers"
+          heading="You may"
+          headingAccent="also like"
+          products={product.relatedProducts}
+        />
+      ) : null}
 
       <InstagramStrip />
       <Footer />

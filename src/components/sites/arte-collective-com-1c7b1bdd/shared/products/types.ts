@@ -2,25 +2,38 @@ import type { Product } from "@/types/product";
 
 export interface ProductSizeVariant {
   id: string;
-  label: "small" | "medium" | "large";
+  /**
+   * Human label for the variant swatch. The cloned Saturn V reference data
+   * uses "small"/"medium"/"large"; live Medusa variants use whatever their
+   * option value is (e.g. "S", "M", "Black / L") — the type is widened to
+   * `string` so real Medusa option values flow through unchanged instead of
+   * being forced into a 3-size shape.
+   */
+  label: string;
   dimensions: string;
   price: number;
-  compareAtPrice: number;
+  /** Absent when Medusa reports no discount for this variant. */
+  compareAtPrice?: number;
   popular?: boolean;
 }
 
 /**
  * Normalized shape the ProductPageTemplate and its children render from.
- * Any data source (static registry today, Medusa later) just needs to
- * produce this shape — see getProductData.ts.
+ * Any data source (static reference registry, or Medusa via
+ * normalizeMedusaProduct.ts) just needs to produce this shape.
  */
 export interface ProductData {
   handle: string;
   title: string;
-  rating: number;
+  /** Absent for Medusa products — Medusa has no built-in review/rating field. */
+  rating?: number;
   images: string[];
   variants: ProductSizeVariant[];
-  buy2Get1ThumbSrc: string;
-  phoneWallpaperThumbSrc: string;
+  /** Saturn-V-specific cloned promo asset; absent for live Medusa products. */
+  buy2Get1ThumbSrc?: string;
+  /** Saturn-V-specific cloned promo asset; absent for live Medusa products. */
+  phoneWallpaperThumbSrc?: string;
   relatedProducts: Product[];
+  /** True when this record came from the local reference registry rather than a live Medusa lookup. */
+  isReferenceData?: boolean;
 }

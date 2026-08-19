@@ -1,18 +1,15 @@
-"use client";
-
-import { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { Search, X } from "lucide-react";
+import { HeaderMenu, type HeaderCollectionLink } from "./HeaderMenu";
 import { hasCollectionData } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/collections/getCollectionData";
-import { collectionHref, staticRoutes } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/routes";
+import { collectionHref } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/routes";
 
 const THEME = "/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/images/theme/";
 
 // `handle` prepares each entry for /collections/[handle]; only handles with
-// registered collection data (see getCollectionData.ts) render as a real
-// link today — the rest activate automatically once their data exists.
-const collections = [
+// registered collection data (live Medusa category or local reference — see
+// getCollectionData.ts) resolve to a real link today. `hasCollectionData` is
+// backed by a single request-memoized lookup, so checking all 9 entries here
+// costs one Medusa request total, not nine.
+const COLLECTION_LINKS: { label: string; handle: string; icon: string; isNew?: boolean }[] = [
   { label: "Aerospace", handle: "aerospace", icon: THEME + "Aerospatials.png" },
   { label: "Space", handle: "space", icon: THEME + "Space.png" },
   { label: "Aesthetic", handle: "aesthetic", icon: THEME + "Aesthetic.png" },
@@ -28,109 +25,21 @@ const collections = [
   },
 ];
 
-export function Header() {
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  return (
-    <header className="absolute inset-x-0 top-0 z-40 mt-[33px]">
-      <div className="flex h-[54px] items-center justify-between bg-[#252122]/50 px-4 sm:px-6">
-        <button
-          type="button"
-          aria-label="Open menu"
-          onClick={() => setMenuOpen(true)}
-          className="flex flex-col gap-[5px]"
-        >
-          <span className="block h-[2px] w-[22px] bg-white" />
-          <span className="block h-[2px] w-[22px] bg-white" />
-          <span className="block h-[2px] w-[22px] bg-white" />
-        </button>
-
-        <Link href={staticRoutes.home} className="font-sans text-[22px] tracking-tight text-white">
-          arte<span className="text-arte-orange">.</span>
-        </Link>
-
-        <div className="flex items-center gap-4">
-          <Search size={18} className="text-white" />
-          <span className="text-[13px] text-white">(0)&nbsp;CART</span>
-        </div>
-      </div>
-
-      {menuOpen ? (
-        <div className="fixed inset-0 z-50 flex">
-          <div className="flex h-full w-[260px] flex-col bg-[#2b1f1d] px-5 py-5 text-white">
-            <div className="mb-6 flex items-center justify-between">
-              <span className="text-[11px] uppercase tracking-widest text-white/70">
-                Menu
-              </span>
-              <button
-                type="button"
-                aria-label="Close menu"
-                onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-1 text-[11px] uppercase tracking-widest text-white/70"
-              >
-                <X size={14} /> Close
-              </button>
-            </div>
-
-            <div className="mb-6 flex gap-2">
-              {["See All", "Frame Only", "Gift Cards"].map((label) => (
-                <div key={label} className="flex-1 text-center">
-                  <div className="mb-1 aspect-square w-full bg-white/10" />
-                  <p className="text-[10px] text-white/80">{label}</p>
-                </div>
-              ))}
-            </div>
-
-            <p className="mb-3 text-[11px] uppercase tracking-widest text-white/50">
-              Collections
-            </p>
-            <ul className="flex flex-1 flex-col gap-3 overflow-y-auto">
-              {collections.map((c) => {
-                const itemContent = (
-                  <>
-                    <span className="relative block h-6 w-6 shrink-0 overflow-hidden rounded-full bg-white/10">
-                      <Image src={c.icon} alt="" fill className="object-cover" />
-                    </span>
-                    <span className="text-[14px]">{c.label}</span>
-                    {c.isNew ? (
-                      <span className="ml-auto bg-arte-orange px-[6px] py-[2px] text-[9px] font-medium uppercase text-white">
-                        New
-                      </span>
-                    ) : null}
-                  </>
-                );
-
-                return (
-                  <li key={c.label} className="flex items-center gap-3">
-                    {hasCollectionData(c.handle) ? (
-                      <Link
-                        href={collectionHref(c.handle)}
-                        onClick={() => setMenuOpen(false)}
-                        className="flex flex-1 items-center gap-3"
-                      >
-                        {itemContent}
-                      </Link>
-                    ) : (
-                      itemContent
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-
-            <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-4 text-[11px] text-white/70">
-              <span>Arte Collective</span>
-              <span>Instagram / Tiktok</span>
-            </div>
-          </div>
-          <button
-            type="button"
-            aria-label="Close menu overlay"
-            className="flex-1 bg-black/40"
-            onClick={() => setMenuOpen(false)}
-          />
-        </div>
-      ) : null}
-    </header>
+/**
+ * Server Component wrapper: resolves which collection links currently exist
+ * (Medusa or reference) and hands the result to the interactive client
+ * shell. This split exists so `HeaderMenu` (which needs client-side state
+ * for the drawer) never has to call an async Medusa-backed loader itself.
+ */
+export async function Header() {
+  const collections: HeaderCollectionLink[] = await Promise.all(
+    COLLECTION_LINKS.map(async (c) => ({
+      label: c.label,
+      icon: c.icon,
+      isNew: c.isNew,
+      href: (await hasCollectionData(c.handle)) ? collectionHref(c.handle) : undefined,
+    }))
   );
+
+  return <HeaderMenu collections={collections} />;
 }

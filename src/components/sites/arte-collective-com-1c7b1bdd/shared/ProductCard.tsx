@@ -1,11 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@/types/product";
-import { hasProductData } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/products/getProductData";
-import { productHref } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/routes";
 
 export function ProductCard({ product }: { product: Product }) {
   const cardClassName = "group relative block w-full bg-[#e5e5e5]";
+  const hasDiscount = product.compareAtPrice != null && product.compareAtPrice > product.price;
 
   const content = (
     <>
@@ -15,20 +14,24 @@ export function ProductCard({ product }: { product: Product }) {
         </span>
       ) : null}
       <div className="relative aspect-[3/4] w-full overflow-hidden">
-        <Image
-          src={product.image}
-          alt={product.title}
-          fill
-          sizes="240px"
-          className="object-cover transition-opacity duration-200"
-        />
+        {product.image ? (
+          <Image
+            src={product.image}
+            alt={product.title}
+            fill
+            sizes="240px"
+            className="object-cover transition-opacity duration-200"
+          />
+        ) : null}
       </div>
       <div className="px-1 py-3">
         <p className="truncate text-[13px] text-arte-text">{product.title}</p>
         <p className="mt-1 text-[13px]">
-          <span className="mr-2 text-arte-text-muted line-through">
-            ${product.compareAtPrice.toFixed(0)}
-          </span>
+          {hasDiscount ? (
+            <span className="mr-2 text-arte-text-muted line-through">
+              ${product.compareAtPrice!.toFixed(0)}
+            </span>
+          ) : null}
           <span className="font-medium text-arte-orange">
             ${product.price.toFixed(0)}
           </span>
@@ -37,9 +40,11 @@ export function ProductCard({ product }: { product: Product }) {
     </>
   );
 
-  if (hasProductData(product.handle)) {
+  // `href` is precomputed by whoever assembled this product list (page or
+  // template Server Component) — cards never decide linkability themselves.
+  if (product.href) {
     return (
-      <Link href={productHref(product.handle)} className={cardClassName}>
+      <Link href={product.href} className={cardClassName}>
         {content}
       </Link>
     );

@@ -19,8 +19,22 @@ import {
   artemisProducts,
   printOfWeekProducts,
 } from "@/components/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/data/products";
+import { attachProductHrefs } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/products/getProductData";
 
-export default function Home() {
+export default async function Home() {
+  // These four arrays are the cloned homepage's decorative/reference product
+  // data (not fetched from Medusa — see the Medusa integration report's
+  // HOMEPAGE section). `attachProductHrefs` is the one place that decides
+  // which of them happen to have a resolvable /products/{handle} today
+  // (currently just "saturn-v-beige"); it's a single request-memoized
+  // lookup shared across all four lists, not one call per product.
+  const [bestsellers, newArrivals, artemis, printOfWeek] = await Promise.all([
+    attachProductHrefs(bestsellerProducts),
+    attachProductHrefs(newArrivalProducts),
+    attachProductHrefs(artemisProducts),
+    attachProductHrefs(printOfWeekProducts),
+  ]);
+
   return (
     <main className="min-h-screen w-full bg-white">
       <AnnouncementBar />
@@ -32,7 +46,7 @@ export default function Home() {
         eyebrow="Trending now"
         heading="Explore our iconic"
         headingAccent="bestsellers"
-        products={bestsellerProducts}
+        products={bestsellers}
       />
 
       <LogoStrip />
@@ -42,7 +56,7 @@ export default function Home() {
         eyebrow="New arrivals"
         heading="Fresh from"
         headingAccent="The lab"
-        products={newArrivalProducts}
+        products={newArrivals}
       />
 
       <CollectionsStack />
@@ -52,11 +66,11 @@ export default function Home() {
         eyebrow="Back to the moon"
         heading="Celebrate"
         headingAccent="Artemis II"
-        products={artemisProducts}
+        products={artemis}
       />
 
       <VideoTabs />
-      <PrintOfWeekGrid products={printOfWeekProducts} />
+      <PrintOfWeekGrid products={printOfWeek} />
       <InstagramStrip />
       <FAQAccordion />
       <DecorativeCTA />

@@ -41,7 +41,7 @@ const badges: {
   },
 ];
 
-export function TrustBadges({ phoneWallpaperThumbSrc }: { phoneWallpaperThumbSrc: string }) {
+export function TrustBadges({ phoneWallpaperThumbSrc }: { phoneWallpaperThumbSrc?: string }) {
   return (
     <div className="border-t border-neutral-200">
       {badges.map((b) => (
@@ -64,23 +64,25 @@ export function TrustBadges({ phoneWallpaperThumbSrc }: { phoneWallpaperThumbSrc
         </div>
       ))}
 
-      <div className="flex items-center gap-3 border-b border-neutral-200 py-4">
-        <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-sm bg-neutral-100">
-          <Image
-            src={phoneWallpaperThumbSrc}
-            alt="Phone wallpaper pack"
-            fill
-            className="object-cover"
-          />
-        </span>
-        <span className="flex-1">
-          <span className="block text-[13px] text-arte-text">Phone wallpaper pack</span>
-          <span className="block text-[11px] text-arte-text-muted">with every order</span>
-        </span>
-        <span className="shrink-0 bg-arte-orange/10 px-2 py-1 text-[10px] font-medium uppercase text-arte-orange">
-          Included free
-        </span>
-      </div>
+      {phoneWallpaperThumbSrc ? (
+        <div className="flex items-center gap-3 border-b border-neutral-200 py-4">
+          <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-sm bg-neutral-100">
+            <Image
+              src={phoneWallpaperThumbSrc}
+              alt="Phone wallpaper pack"
+              fill
+              className="object-cover"
+            />
+          </span>
+          <span className="flex-1">
+            <span className="block text-[13px] text-arte-text">Phone wallpaper pack</span>
+            <span className="block text-[11px] text-arte-text-muted">with every order</span>
+          </span>
+          <span className="shrink-0 bg-arte-orange/10 px-2 py-1 text-[10px] font-medium uppercase text-arte-orange">
+            Included free
+          </span>
+        </div>
+      ) : null}
     </div>
   );
 }

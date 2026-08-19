@@ -6,8 +6,9 @@ import {
   getProductData,
 } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/products/getProductData";
 
-export function generateStaticParams() {
-  return getAllProductHandles().map((handle) => ({ handle }));
+export async function generateStaticParams() {
+  const handles = await getAllProductHandles();
+  return handles.map((handle) => ({ handle }));
 }
 
 export async function generateMetadata({

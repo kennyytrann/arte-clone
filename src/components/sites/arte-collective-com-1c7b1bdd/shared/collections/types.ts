@@ -17,14 +17,18 @@ export interface CollectionRating {
 
 /**
  * Normalized shape the CollectionPageTemplate and its children render from.
- * Any data source (static registry today, Medusa later) just needs to
- * produce this shape — see getCollectionData.ts.
+ * Any data source (static reference registry, or Medusa via
+ * normalizeMedusaCollection.ts) just needs to produce this shape.
  */
 export interface CollectionData {
   handle: string;
   title: string;
   heroLabel: string;
-  heroImage: string;
-  rating: CollectionRating;
+  /** Absent for Medusa categories — Medusa has no built-in category image field. */
+  heroImage?: string;
+  /** Absent for Medusa categories — Medusa has no built-in review/rating field. */
+  rating?: CollectionRating;
   products: CollectionProduct[];
+  /** True when this record came from the local reference registry rather than a live Medusa lookup. */
+  isReferenceData?: boolean;
 }

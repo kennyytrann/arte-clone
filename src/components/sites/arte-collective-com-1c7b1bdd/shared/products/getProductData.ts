@@ -1,32 +1,151 @@
+import { cache } from "react";
+import type { HttpTypes } from "@medusajs/types";
+import type { Product } from "@/types/product";
 import type { ProductData } from "./types";
+import { medusa, isMedusaConfigured } from "@/lib/medusa";
+import { getRegionContext } from "@/lib/medusa-region";
+import { normalizeMedusaProduct } from "./normalizeMedusaProduct";
+import { productHref } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/routes";
 import { saturnVBeigeProduct } from "@/components/sites/arte-collective-com-1c7b1bdd/collections-best-sellers-products-saturn-v-beige-ae4f1ab4/data";
 
 /**
- * Temporary in-memory product registry, keyed by URL handle.
- *
- * This is the seam a future Medusa integration replaces: swap the body of
- * `getProductData` for a Medusa API/DB call that resolves a handle to the
- * same `ProductData` shape, and every component downstream
- * (ProductPageTemplate, ProductGallery, ProductBuyBox, VariantSelector,
- * TrustBadges, SizeGuideModal) keeps working unchanged.
+ * Local reference/fallback catalog. Kept ONLY so the previously-verified
+ * Saturn V clone stays viewable as a visual/presentation reference — see the
+ * PRODUCTS section of the Medusa integration report. Medusa is the
+ * authoritative source whenever it has a matching handle; this registry is
+ * consulted only when Medusa doesn't (or is unreachable).
  */
-const products: Record<string, ProductData> = {
-  "saturn-v-beige": saturnVBeigeProduct,
+const REFERENCE_PRODUCTS: Record<string, ProductData> = {
+  "saturn-v-beige": { ...saturnVBeigeProduct, isReferenceData: true },
 };
 
-export async function getProductData(handle: string): Promise<ProductData | undefined> {
-  return products[handle];
+async function fetchMedusaProductByHandle(
+  handle: string,
+  regionId: string | undefined
+): Promise<HttpTypes.StoreProduct | null> {
+  if (!isMedusaConfigured) return null;
+
+  try {
+    const { products } = await medusa.store.product.list({
+      handle,
+      limit: 1,
+      region_id: regionId,
+      fields: "*categories",
+    });
+    return products[0] ?? null;
+  } catch (error) {
+    console.error(`[getProductData] Medusa lookup failed for handle "${handle}":`, error);
+    return null;
+  }
 }
 
-export function getAllProductHandles(): string[] {
-  return Object.keys(products);
+function toRelatedProduct(product: HttpTypes.StoreProduct): Product {
+  const firstVariant = product.variants?.[0];
+  const calc = firstVariant?.calculated_price;
+  const price = calc?.calculated_amount ?? 0;
+  const original = calc?.original_amount ?? null;
+
+  return {
+    handle: product.handle ?? product.id,
+    title: product.title,
+    price,
+    compareAtPrice: original != null && original > price ? original : undefined,
+    image: product.thumbnail ?? null,
+    href: productHref(product.handle ?? product.id),
+  };
+}
+
+async function fetchRelatedProducts(
+  excludeHandle: string,
+  categoryId: string | undefined,
+  regionId: string | undefined
+): Promise<Product[]> {
+  if (!isMedusaConfigured || !categoryId) return [];
+
+  try {
+    const { products } = await medusa.store.product.list({
+      category_id: [categoryId],
+      limit: 5,
+      region_id: regionId,
+    });
+    return products.filter((p) => p.handle !== excludeHandle).map(toRelatedProduct);
+  } catch (error) {
+    console.error(`[getProductData] Failed to load related products for category "${categoryId}":`, error);
+    return [];
+  }
 }
 
 /**
- * Synchronous membership check used by navigation UI (cards, related-product
- * lists) to decide whether a handle can be linked to yet, without awaiting
- * the full async loader. Keep this in sync with `getProductData`'s source.
+ * URL handle → ProductData. Medusa is tried first; the local reference
+ * registry is used only as a fallback (Medusa unreachable, or it simply
+ * doesn't have this handle yet).
  */
-export function hasProductData(handle: string): boolean {
-  return handle in products;
+export async function getProductData(handle: string): Promise<ProductData | undefined> {
+  const region = await getRegionContext();
+  const medusaProduct = await fetchMedusaProductByHandle(handle, region?.regionId);
+
+  if (medusaProduct) {
+    const data = normalizeMedusaProduct(medusaProduct);
+    const categoryId = medusaProduct.categories?.[0]?.id;
+    data.relatedProducts = await fetchRelatedProducts(handle, categoryId, region?.regionId);
+    return data;
+  }
+
+  const reference = REFERENCE_PRODUCTS[handle];
+  if (!reference) return undefined;
+
+  return { ...reference, relatedProducts: await attachProductHrefs(reference.relatedProducts) };
+}
+
+/**
+ * All known product handles (live Medusa + local reference), memoized per
+ * request via React `cache()` so every card on a page shares one lookup
+ * instead of each issuing its own request.
+ */
+const listAllHandles = cache(async (): Promise<Set<string>> => {
+  const handles = new Set<string>(Object.keys(REFERENCE_PRODUCTS));
+
+  if (isMedusaConfigured) {
+    try {
+      const { products } = await medusa.store.product.list({
+        limit: 1000,
+        fields: "handle",
+      });
+      for (const p of products) {
+        if (p.handle) handles.add(p.handle);
+      }
+    } catch (error) {
+      console.error("[getProductData] Failed to list Medusa product handles:", error);
+    }
+  }
+
+  return handles;
+});
+
+export async function getAllProductHandles(): Promise<string[]> {
+  return Array.from(await listAllHandles());
+}
+
+/**
+ * Membership check used by navigation/data-assembly code (page/template
+ * level, never per-card in a client component) to decide whether a
+ * decorative/reference product handle can be linked yet.
+ */
+export async function hasProductData(handle: string): Promise<boolean> {
+  return (await listAllHandles()).has(handle);
+}
+
+/**
+ * Attaches `href` to each product based on the shared, request-memoized
+ * handle set — one lookup total per page render, no matter how many
+ * decorative/reference products are being annotated. Used by page/template
+ * code that assembles product lists (never by the card components
+ * themselves, and never per-card).
+ */
+export async function attachProductHrefs<T extends Product>(products: T[]): Promise<T[]> {
+  const handles = await listAllHandles();
+  return products.map((product) => ({
+    ...product,
+    href: handles.has(product.handle) ? productHref(product.handle) : undefined,
+  }));
 }

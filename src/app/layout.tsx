@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Crimson_Text, Roboto_Mono } from "next/font/google";
+import { CartProvider } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/CartProvider";
 import "./globals.css";
 
 const inter = Inter({
@@ -39,7 +40,9 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${crimsonText.variable} ${robotoMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <CartProvider>{children}</CartProvider>
+      </body>
     </html>
   );
 }
