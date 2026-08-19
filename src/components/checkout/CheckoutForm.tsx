@@ -437,7 +437,9 @@ export function CheckoutForm() {
           onEdit={() => setActiveStep("delivery")}
         >
           {shippingOptions === null ? (
-            <p className="text-[13px] text-arte-text-muted">Loading shipping options…</p>
+            deliveryError ? null : (
+              <p className="text-[13px] text-arte-text-muted">Loading shipping options…</p>
+            )
           ) : shippingOptions.length === 0 ? (
             <p className="text-[13px] text-arte-text-muted">
               No shipping options are available for this address yet. This is a backend

@@ -88,6 +88,9 @@ export function PaymentSection({
   }
 
   if (!providerIds) {
+    if (error) {
+      return <p className="text-[13px] text-red-600">{error}</p>;
+    }
     return <p className="text-[13px] text-arte-text-muted">Loading payment options…</p>;
   }
 
