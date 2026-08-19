@@ -11,6 +11,8 @@ export interface CartLineItem {
   variantTitle: string;
   quantity: number;
   unitPrice: number;
+  /** Absent when Medusa reports no discount for this line item. */
+  compareAtUnitPrice?: number;
   thumbnail: string | null;
 }
 
@@ -36,20 +38,52 @@ function clearStoredCartId(): void {
   window.localStorage.removeItem(CART_ID_STORAGE_KEY);
 }
 
+/**
+ * Read-only access to the persisted cart ID for the checkout/payment
+ * services (checkout.ts, payment.ts) — they operate on the same cart this
+ * module owns in localStorage without duplicating storage logic.
+ */
+export function getStoredCartId(): string | null {
+  return readStoredCartId();
+}
+
+/**
+ * Called once an order has been placed from the current cart (see
+ * checkout.ts's completeCheckoutCart). A completed Medusa cart can't be
+ * reused — clearing the ID here is what makes the next "Add to Cart" start a
+ * fresh cart instead of erroring against the now-completed one.
+ */
+export function clearCompletedCart(): void {
+  clearStoredCartId();
+}
+
+/**
+ * Shared by the cart service and the checkout service (checkout.ts) so both
+ * render the exact same real line-item data instead of two divergent
+ * mappings of the same Medusa cart.
+ */
+export function toCartLineItems(items: HttpTypes.StoreCart["items"]): CartLineItem[] {
+  return (items ?? []).map((item) => ({
+    id: item.id,
+    variantId: item.variant_id,
+    productTitle: item.product_title ?? item.title,
+    variantTitle: item.variant_title ?? item.title,
+    quantity: item.quantity,
+    unitPrice: item.unit_price,
+    compareAtUnitPrice:
+      item.compare_at_unit_price != null && item.compare_at_unit_price > item.unit_price
+        ? item.compare_at_unit_price
+        : undefined,
+    thumbnail: item.thumbnail ?? null,
+  }));
+}
+
 function toCartSummary(cart: HttpTypes.StoreCart): CartSummary {
   const items = cart.items ?? [];
   return {
     id: cart.id,
     currencyCode: cart.currency_code,
-    items: items.map((item) => ({
-      id: item.id,
-      variantId: item.variant_id,
-      productTitle: item.product_title ?? item.title,
-      variantTitle: item.variant_title ?? item.title,
-      quantity: item.quantity,
-      unitPrice: item.unit_price,
-      thumbnail: item.thumbnail ?? null,
-    })),
+    items: toCartLineItems(items),
     totalQuantity: items.reduce((sum, item) => sum + item.quantity, 0),
   };
 }

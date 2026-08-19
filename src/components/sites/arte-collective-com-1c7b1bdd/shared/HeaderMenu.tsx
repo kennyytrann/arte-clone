@@ -45,10 +45,9 @@ export function HeaderMenu({ collections }: { collections: HeaderCollectionLink[
 
         <div className="flex items-center gap-4">
           <Search size={18} className="text-white" />
-          {/* No cloned cart page exists yet (see the integration report), so
-              this stays plain text, not a Link — same as before, just with a
-              real quantity now. */}
-          <span className="text-[13px] text-white">({totalQuantity})&nbsp;CART</span>
+          <Link href={staticRoutes.cart} className="text-[13px] text-white">
+            ({totalQuantity})&nbsp;CART
+          </Link>
         </div>
       </div>
 

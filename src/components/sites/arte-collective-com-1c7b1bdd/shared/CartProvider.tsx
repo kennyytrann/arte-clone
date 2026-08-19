@@ -17,6 +17,16 @@ interface CartContextValue {
   addItem: (variantId: string, quantity?: number) => Promise<void>;
   updateItem: (lineItemId: string, quantity: number) => Promise<void>;
   removeItem: (lineItemId: string) => Promise<void>;
+  /**
+   * Re-reads the persisted cart from Medusa and updates the shared state.
+   * Used by the checkout flow (which mutates the cart through
+   * src/lib/checkout.ts, outside this provider) so the Header's live count
+   * and any other useCart() consumer stay in sync — most importantly, after
+   * an order completes and the completed cart's ID is cleared from
+   * localStorage, calling this resolves to `null` and the Header returns to
+   * "(0) CART".
+   */
+  refreshCart: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -82,11 +92,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const refreshCart = useCallback(async () => {
+    setCart(await getCart());
+  }, []);
+
   const totalQuantity = cart?.totalQuantity ?? 0;
 
   return (
     <CartContext.Provider
-      value={{ cart, totalQuantity, isLoading, error, addItem, updateItem, removeItem }}
+      value={{ cart, totalQuantity, isLoading, error, addItem, updateItem, removeItem, refreshCart }}
     >
       {children}
     </CartContext.Provider>
