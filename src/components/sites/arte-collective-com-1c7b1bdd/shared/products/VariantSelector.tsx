@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Info } from "lucide-react";
-import type { SizeVariant } from "./data";
+import type { ProductSizeVariant } from "./types";
 import { SizeGuideModal } from "./SizeGuideModal";
 
 export function VariantSelector({
@@ -10,7 +10,7 @@ export function VariantSelector({
   selectedId,
   onSelect,
 }: {
-  variants: SizeVariant[];
+  variants: ProductSizeVariant[];
   selectedId: string;
   onSelect: (id: string) => void;
 }) {

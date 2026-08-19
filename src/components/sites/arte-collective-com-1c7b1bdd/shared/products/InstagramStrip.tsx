@@ -14,10 +14,10 @@ const photos = [
 ];
 
 /**
- * Page-specific variant: live copy on this PDP reads "Share your poster with
- * @artecollective_" ("with", no colon) — differs from the homepage's
- * "Share your poster: @artecollective_", so this was NOT promoted to shared/.
- * See docs/research/.../BEHAVIORS.md for the verification note.
+ * Product-page-template chrome (not per-product data): live copy on product
+ * pages reads "Share your poster with @artecollective_" ("with", no colon) —
+ * differs from the homepage's "Share your poster: @artecollective_", so this
+ * stays a separate component from the homepage's InstagramStrip.
  */
 export function InstagramStrip() {
   return (

@@ -1,13 +1,13 @@
 "use client";
 
 import { X } from "lucide-react";
-import type { SizeVariant } from "./data";
+import type { ProductSizeVariant } from "./types";
 
 export function SizeGuideModal({
   variants,
   onClose,
 }: {
-  variants: SizeVariant[];
+  variants: ProductSizeVariant[];
   onClose: () => void;
 }) {
   return (

@@ -3,19 +3,14 @@
 import { useState } from "react";
 import Image from "next/image";
 import { Star, ArrowDownRight } from "lucide-react";
-import {
-  productTitle,
-  productRating,
-  sizeVariants,
-  buy2Get1ThumbSrc,
-} from "./data";
+import type { ProductData } from "./types";
 import { VariantSelector } from "./VariantSelector";
 import { TrustBadges } from "./TrustBadges";
 
-export function ProductBuyBox() {
-  const [selectedId, setSelectedId] = useState(sizeVariants[0].id);
+export function ProductBuyBox({ product }: { product: ProductData }) {
+  const [selectedId, setSelectedId] = useState(product.variants[0].id);
   const variant =
-    sizeVariants.find((v) => v.id === selectedId) ?? sizeVariants[0];
+    product.variants.find((v) => v.id === selectedId) ?? product.variants[0];
   const savePct = Math.round(
     (1 - variant.price / variant.compareAtPrice) * 100
   );
@@ -29,12 +24,12 @@ export function ProductBuyBox() {
           ))}
         </span>
         <span className="text-[13px] text-arte-text-muted">
-          {productRating.toFixed(2)}/5
+          {product.rating.toFixed(2)}/5
         </span>
       </div>
 
       <h1 className="mb-2 text-[26px] font-medium leading-tight text-arte-text sm:text-[30px]">
-        {productTitle}
+        {product.title}
       </h1>
 
       <div className="mb-5 flex items-center gap-2">
@@ -50,7 +45,7 @@ export function ProductBuyBox() {
       </div>
 
       <VariantSelector
-        variants={sizeVariants}
+        variants={product.variants}
         selectedId={selectedId}
         onSelect={setSelectedId}
       />
@@ -58,7 +53,7 @@ export function ProductBuyBox() {
       <div className="my-4 flex items-center gap-3 bg-neutral-100 px-3 py-2">
         <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-sm bg-white">
           <Image
-            src={buy2Get1ThumbSrc}
+            src={product.buy2Get1ThumbSrc}
             alt="Buy 2 get 1 free"
             fill
             className="object-contain p-1"
@@ -81,7 +76,7 @@ export function ProductBuyBox() {
       </p>
 
       <div className="mt-5">
-        <TrustBadges />
+        <TrustBadges phoneWallpaperThumbSrc={product.phoneWallpaperThumbSrc} />
       </div>
     </div>
   );

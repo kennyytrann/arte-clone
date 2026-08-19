@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
 import { Zap, Sparkles, RotateCcw } from "lucide-react";
-import { phoneWallpaperThumbSrc } from "./data";
 
 function UsaFlagIcon() {
   return (
@@ -42,7 +41,7 @@ const badges: {
   },
 ];
 
-export function TrustBadges() {
+export function TrustBadges({ phoneWallpaperThumbSrc }: { phoneWallpaperThumbSrc: string }) {
   return (
     <div className="border-t border-neutral-200">
       {badges.map((b) => (

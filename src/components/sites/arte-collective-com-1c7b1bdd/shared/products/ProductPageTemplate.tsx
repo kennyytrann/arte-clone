@@ -3,13 +3,12 @@ import { Header } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/H
 import { EmailCaptureModal } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/EmailCaptureModal";
 import { Footer } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/Footer";
 import { ProductCarousel } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/ProductCarousel";
-import { bestsellerProducts } from "@/components/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/data/products";
-import { ProductGallery } from "@/components/sites/arte-collective-com-1c7b1bdd/collections-best-sellers-products-saturn-v-beige-ae4f1ab4/ProductGallery";
-import { ProductBuyBox } from "@/components/sites/arte-collective-com-1c7b1bdd/collections-best-sellers-products-saturn-v-beige-ae4f1ab4/ProductBuyBox";
-import { InstagramStrip } from "@/components/sites/arte-collective-com-1c7b1bdd/collections-best-sellers-products-saturn-v-beige-ae4f1ab4/InstagramStrip";
-import { galleryImages, productTitle } from "@/components/sites/arte-collective-com-1c7b1bdd/collections-best-sellers-products-saturn-v-beige-ae4f1ab4/data";
+import { ProductGallery } from "./ProductGallery";
+import { ProductBuyBox } from "./ProductBuyBox";
+import { InstagramStrip } from "./InstagramStrip";
+import type { ProductData } from "./types";
 
-export default function SaturnVBeigePage() {
+export function ProductPageTemplate({ product }: { product: ProductData }) {
   return (
     <main className="min-h-screen w-full bg-white">
       <AnnouncementBar />
@@ -18,8 +17,8 @@ export default function SaturnVBeigePage() {
 
       <section className="mx-auto max-w-[1200px] px-4 pt-[100px] pb-16 sm:px-8 sm:pt-[110px]">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-16 lg:items-start">
-          <ProductGallery images={galleryImages} alt={productTitle} />
-          <ProductBuyBox />
+          <ProductGallery images={product.images} alt={product.title} />
+          <ProductBuyBox product={product} />
         </div>
       </section>
 
@@ -27,7 +26,7 @@ export default function SaturnVBeigePage() {
         eyebrow="Best sellers"
         heading="You may"
         headingAccent="also like"
-        products={bestsellerProducts}
+        products={product.relatedProducts}
       />
 
       <InstagramStrip />
