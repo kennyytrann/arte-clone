@@ -1,4 +1,6 @@
 import Image from "next/image";
+import Link from "next/link";
+import { staticRoutes } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/routes";
 
 const THEME = "/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/images/theme/";
 
@@ -8,13 +10,15 @@ const socials = [
   { name: "TikTok", src: THEME + "tiktok.svg" },
 ];
 
-const legalLinks = [
-  "Contact",
-  "Privacy Policy",
-  "Refund Policy",
-  "Shipping Policy",
-  "Terms of Service",
-  "Your Privacy Choices",
+// `href: undefined` means no cloned route exists yet for that link — it
+// renders as plain text instead of navigating anywhere.
+const legalLinks: { label: string; href?: string }[] = [
+  { label: "Contact", href: staticRoutes.contact },
+  { label: "Privacy Policy", href: staticRoutes.privacyPolicy },
+  { label: "Refund Policy", href: staticRoutes.refundPolicy },
+  { label: "Shipping Policy", href: staticRoutes.shippingPolicy },
+  { label: "Terms of Service", href: staticRoutes.termsOfService },
+  { label: "Your Privacy Choices" },
 ];
 
 export function Footer() {
@@ -44,9 +48,15 @@ export function Footer() {
       </div>
 
       <div className="mb-3 flex flex-wrap justify-center gap-x-4 gap-y-1 text-[11px]">
-        {legalLinks.map((l) => (
-          <span key={l}>{l}</span>
-        ))}
+        {legalLinks.map((l) =>
+          l.href ? (
+            <Link key={l.label} href={l.href}>
+              {l.label}
+            </Link>
+          ) : (
+            <span key={l.label}>{l.label}</span>
+          )
+        )}
       </div>
 
       <p className="text-[11px] text-white/80">© 2026 Arte Collective | All rights reserved.</p>

@@ -23,3 +23,12 @@ export async function getCollectionData(
 export function getAllCollectionHandles(): string[] {
   return Object.keys(collections);
 }
+
+/**
+ * Synchronous membership check used by navigation UI (menus, cards) to
+ * decide whether a handle can be linked to yet, without awaiting the full
+ * async loader. Keep this in sync with `getCollectionData`'s data source.
+ */
+export function hasCollectionData(handle: string): boolean {
+  return handle in collections;
+}

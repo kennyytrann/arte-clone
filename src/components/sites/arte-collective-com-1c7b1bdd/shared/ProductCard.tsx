@@ -1,9 +1,14 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { Product } from "@/types/product";
+import { hasProductData } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/products/getProductData";
+import { productHref } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/routes";
 
 export function ProductCard({ product }: { product: Product }) {
-  return (
-    <div className="group relative w-full bg-[#e5e5e5]">
+  const cardClassName = "group relative block w-full bg-[#e5e5e5]";
+
+  const content = (
+    <>
       {product.badge ? (
         <span className="absolute left-0 top-0 z-10 bg-arte-orange px-[6px] py-[4px] text-[9px] font-medium uppercase tracking-[-0.27px] text-white">
           {product.badge}
@@ -29,6 +34,16 @@ export function ProductCard({ product }: { product: Product }) {
           </span>
         </p>
       </div>
-    </div>
+    </>
   );
+
+  if (hasProductData(product.handle)) {
+    return (
+      <Link href={productHref(product.handle)} className={cardClassName}>
+        {content}
+      </Link>
+    );
+  }
+
+  return <div className={cardClassName}>{content}</div>;
 }

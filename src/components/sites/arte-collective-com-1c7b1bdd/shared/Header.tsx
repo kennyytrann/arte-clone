@@ -2,20 +2,30 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Search, X } from "lucide-react";
+import { hasCollectionData } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/collections/getCollectionData";
+import { collectionHref, staticRoutes } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/routes";
 
 const THEME = "/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/images/theme/";
 
+// `handle` prepares each entry for /collections/[handle]; only handles with
+// registered collection data (see getCollectionData.ts) render as a real
+// link today — the rest activate automatically once their data exists.
 const collections = [
-  { label: "Aerospace", icon: THEME + "Aerospatials.png" },
-  { label: "Space", icon: THEME + "Space.png" },
-  { label: "Aesthetic", icon: THEME + "Aesthetic.png" },
-  { label: "Science", icon: THEME + "Science.png" },
-  { label: "Historic Shots", icon: THEME + "History.png", isNew: true },
-  { label: "Technology", icon: THEME + "code-pill.png" },
-  { label: "History", icon: THEME + "History.png" },
-  { label: "Social Sciences", icon: THEME + "Social_Sciences.png" },
-  { label: "Biology", icon: THEME + "biology_68d6d791-caa2-4bd4-93e1-b5adc7807249.png" },
+  { label: "Aerospace", handle: "aerospace", icon: THEME + "Aerospatials.png" },
+  { label: "Space", handle: "space", icon: THEME + "Space.png" },
+  { label: "Aesthetic", handle: "aesthetic", icon: THEME + "Aesthetic.png" },
+  { label: "Science", handle: "science", icon: THEME + "Science.png" },
+  { label: "Historic Shots", handle: "historic-shots", icon: THEME + "History.png", isNew: true },
+  { label: "Technology", handle: "technology", icon: THEME + "code-pill.png" },
+  { label: "History", handle: "history", icon: THEME + "History.png" },
+  { label: "Social Sciences", handle: "social-sciences", icon: THEME + "Social_Sciences.png" },
+  {
+    label: "Biology",
+    handle: "biology",
+    icon: THEME + "biology_68d6d791-caa2-4bd4-93e1-b5adc7807249.png",
+  },
 ];
 
 export function Header() {
@@ -35,9 +45,9 @@ export function Header() {
           <span className="block h-[2px] w-[22px] bg-white" />
         </button>
 
-        <span className="font-sans text-[22px] tracking-tight text-white">
+        <Link href={staticRoutes.home} className="font-sans text-[22px] tracking-tight text-white">
           arte<span className="text-arte-orange">.</span>
-        </span>
+        </Link>
 
         <div className="flex items-center gap-4">
           <Search size={18} className="text-white" />
@@ -75,19 +85,37 @@ export function Header() {
               Collections
             </p>
             <ul className="flex flex-1 flex-col gap-3 overflow-y-auto">
-              {collections.map((c) => (
-                <li key={c.label} className="flex items-center gap-3">
-                  <span className="relative block h-6 w-6 shrink-0 overflow-hidden rounded-full bg-white/10">
-                    <Image src={c.icon} alt="" fill className="object-cover" />
-                  </span>
-                  <span className="text-[14px]">{c.label}</span>
-                  {c.isNew ? (
-                    <span className="ml-auto bg-arte-orange px-[6px] py-[2px] text-[9px] font-medium uppercase text-white">
-                      New
+              {collections.map((c) => {
+                const itemContent = (
+                  <>
+                    <span className="relative block h-6 w-6 shrink-0 overflow-hidden rounded-full bg-white/10">
+                      <Image src={c.icon} alt="" fill className="object-cover" />
                     </span>
-                  ) : null}
-                </li>
-              ))}
+                    <span className="text-[14px]">{c.label}</span>
+                    {c.isNew ? (
+                      <span className="ml-auto bg-arte-orange px-[6px] py-[2px] text-[9px] font-medium uppercase text-white">
+                        New
+                      </span>
+                    ) : null}
+                  </>
+                );
+
+                return (
+                  <li key={c.label} className="flex items-center gap-3">
+                    {hasCollectionData(c.handle) ? (
+                      <Link
+                        href={collectionHref(c.handle)}
+                        onClick={() => setMenuOpen(false)}
+                        className="flex flex-1 items-center gap-3"
+                      >
+                        {itemContent}
+                      </Link>
+                    ) : (
+                      itemContent
+                    )}
+                  </li>
+                );
+              })}
             </ul>
 
             <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-4 text-[11px] text-white/70">

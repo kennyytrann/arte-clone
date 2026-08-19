@@ -21,3 +21,12 @@ export async function getProductData(handle: string): Promise<ProductData | unde
 export function getAllProductHandles(): string[] {
   return Object.keys(products);
 }
+
+/**
+ * Synchronous membership check used by navigation UI (cards, related-product
+ * lists) to decide whether a handle can be linked to yet, without awaiting
+ * the full async loader. Keep this in sync with `getProductData`'s source.
+ */
+export function hasProductData(handle: string): boolean {
+  return handle in products;
+}
