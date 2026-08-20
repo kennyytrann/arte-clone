@@ -18,7 +18,7 @@ export function ProductGallery({
   }
 
   return (
-    <div className="relative aspect-square w-full overflow-hidden bg-[#e5e2df] sm:aspect-[4/5]">
+    <div className="relative aspect-[2/3] w-full overflow-hidden bg-[#e5e2df]">
       {images.map((src, i) => (
         <Image
           key={src}

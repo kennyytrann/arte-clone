@@ -1,7 +1,6 @@
 import { AnnouncementBar } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/AnnouncementBar";
 import { Header } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/Header";
 import { Footer } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/Footer";
-import { EmailCaptureModal } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/EmailCaptureModal";
 import { ContactForm } from "@/components/sites/arte-collective-com-1c7b1bdd/pages-contact-e4ca4298/ContactForm";
 
 export default function ContactPage() {
@@ -9,7 +8,6 @@ export default function ContactPage() {
     <main className="min-h-screen w-full bg-white">
       <AnnouncementBar />
       <Header />
-      <EmailCaptureModal />
 
       <div className="pt-[130px] sm:pt-[150px]">
         <ContactForm />

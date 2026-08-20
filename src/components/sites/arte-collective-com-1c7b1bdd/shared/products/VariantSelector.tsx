@@ -5,19 +5,31 @@ import { Info } from "lucide-react";
 import type { ProductSizeVariant } from "./types";
 import { SizeGuideModal } from "./SizeGuideModal";
 
+/** "12x18" -> `12" x 18"`, matching the reference card style's pill format. Falls back to the raw value for anything that doesn't match (e.g. non-numeric option values), never fabricating a size. */
+function formatSizeLabel(value: string): string {
+  const match = /^(\d+)\s*x\s*(\d+)$/i.exec(value.trim());
+  if (!match) return value;
+  return `${match[1]}" x ${match[2]}"`;
+}
+
 function SizeSwatchGrid({
   options,
   selectedValue,
   onSelect,
+  pillLabel,
 }: {
   options: { value: string; variant: ProductSizeVariant }[];
   selectedValue: string;
   onSelect: (value: string) => void;
+  /** Optional override for the pill text below each card (defaults to variant.dimensions). The multi-axis (Size × Frame) caller passes just the size, e.g. `12" x 18"`, now that Frame is its own separate selector. */
+  pillLabel?: (option: { value: string; variant: ProductSizeVariant }) => string;
 }) {
   return (
     <div className="grid grid-cols-3 gap-2">
-      {options.map(({ value, variant: v }) => {
+      {options.map((option) => {
+        const { value, variant: v } = option;
         const selected = value === selectedValue;
+        const pillText = pillLabel ? pillLabel(option) : v.dimensions;
         return (
           <button
             key={value}
@@ -33,13 +45,17 @@ function SizeSwatchGrid({
               }`}
             >
               {v.popular ? (
-                <span className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap bg-arte-orange px-2 py-[3px] text-[9px] font-medium uppercase tracking-wide text-white">
+                <span className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-arte-orange/15 px-2 py-[3px] text-[9px] font-medium uppercase tracking-wide text-arte-orange">
                   Popular
                 </span>
               ) : null}
               <span className="h-1 w-6 rounded-full bg-neutral-300" />
               <span className="relative flex w-full flex-1 items-center justify-center overflow-hidden bg-white">
-                <span className="font-accent text-[13px] italic text-arte-text-muted">
+                <span
+                  className={`font-accent text-[13px] italic ${
+                    selected ? "text-arte-orange" : "text-arte-text-muted"
+                  }`}
+                >
                   {v.label}
                 </span>
                 <span
@@ -58,7 +74,7 @@ function SizeSwatchGrid({
                   : "border border-neutral-300 text-arte-text"
               }`}
             >
-              {v.dimensions}
+              {pillText}
             </span>
           </button>
         );
@@ -156,11 +172,76 @@ export function VariantSelector({
     // selection so the swatch's price/label reflects what's actually shown.
     primaryValues.push({ value, variant: resolveVariant(value, selectedSecondaryValues) ?? v });
   }
+  // Order smallest to largest, left to right — real Medusa variant order
+  // reflects import order, not size. Parses "WxH" values (e.g. "12x18") by
+  // area; anything that doesn't match that shape (e.g. the reference
+  // catalog's Small/Medium/Large) keeps its original order, unaffected.
+  const sizeArea = (value: string): number | null => {
+    const match = /^(\d+)\s*x\s*(\d+)$/i.exec(value.trim());
+    return match ? Number(match[1]) * Number(match[2]) : null;
+  };
+  if (primaryValues.every((p) => sizeArea(p.value) != null)) {
+    primaryValues.sort((a, b) => sizeArea(a.value)! - sizeArea(b.value)!);
+  }
 
   const guideVariants = primaryValues.map((p) => p.variant);
 
   return (
     <div>
+      {/* Secondary axis (Frame) renders above the primary Size grid — a
+          simple compact tab row, no "Size guide" link (that stays attached
+          to the Size heading below). */}
+      {secondaryTitles.map((title) => {
+        const values: string[] = [];
+        const seen = new Set<string>();
+        for (const v of variants) {
+          const value = v.optionValues![title];
+          if (!seen.has(value)) {
+            seen.add(value);
+            values.push(value);
+          }
+        }
+        // Cheapest first (e.g. Unframed before Black Metal) — real Medusa
+        // variant order reflects import order, not price. Resolved against
+        // the current size/other-axis selection so the ordering always
+        // matches what's actually being compared.
+        values.sort((a, b) => {
+          const priceA = resolveVariant(selectedPrimaryValue, { ...selectedSecondaryValues, [title]: a })?.price ?? Infinity;
+          const priceB = resolveVariant(selectedPrimaryValue, { ...selectedSecondaryValues, [title]: b })?.price ?? Infinity;
+          return priceA - priceB;
+        });
+        return (
+          <div key={title} className="mb-4">
+            <p className="mb-2 text-[13px] text-arte-text">Select {title.toLowerCase()}</p>
+            <div className="flex flex-wrap gap-2">
+              {values.map((value) => {
+                const selected = selectedSecondaryValues[title] === value;
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => {
+                      const next = resolveVariant(selectedPrimaryValue, {
+                        ...selectedSecondaryValues,
+                        [title]: value,
+                      });
+                      if (next) onSelect(next.id);
+                    }}
+                    className={`border px-3 py-1.5 text-[12px] ${
+                      selected
+                        ? "border-arte-orange bg-arte-orange/10 text-arte-text"
+                        : "border-neutral-300 text-arte-text"
+                    }`}
+                  >
+                    {value}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+
       <div className="mb-3 flex items-center justify-between">
         <p className="text-[13px] text-arte-text">
           Select {primaryTitle.toLowerCase()}
@@ -181,49 +262,8 @@ export function VariantSelector({
           const next = resolveVariant(value, selectedSecondaryValues);
           if (next) onSelect(next.id);
         }}
+        pillLabel={(option) => formatSizeLabel(option.value)}
       />
-
-      {secondaryTitles.map((title) => {
-        const values: string[] = [];
-        const seen = new Set<string>();
-        for (const v of variants) {
-          const value = v.optionValues![title];
-          if (!seen.has(value)) {
-            seen.add(value);
-            values.push(value);
-          }
-        }
-        return (
-          <div key={title} className="mt-4">
-            <p className="mb-2 text-[13px] text-arte-text">Select {title.toLowerCase()}</p>
-            <div className="flex flex-wrap gap-2">
-              {values.map((value) => {
-                const selected = selectedSecondaryValues[title] === value;
-                return (
-                  <button
-                    key={value}
-                    type="button"
-                    onClick={() => {
-                      const next = resolveVariant(selectedPrimaryValue, {
-                        ...selectedSecondaryValues,
-                        [title]: value,
-                      });
-                      if (next) onSelect(next.id);
-                    }}
-                    className={`border px-4 py-2 text-[12px] ${
-                      selected
-                        ? "border-arte-orange bg-arte-orange/10 text-arte-text"
-                        : "border-neutral-300 text-arte-text"
-                    }`}
-                  >
-                    {value}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        );
-      })}
 
       {guideOpen ? (
         <SizeGuideModal variants={guideVariants} onClose={() => setGuideOpen(false)} />
