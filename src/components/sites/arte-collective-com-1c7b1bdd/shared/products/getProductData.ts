@@ -6,6 +6,7 @@ import { medusa, isMedusaConfigured } from "@/lib/medusa";
 import { getRegionContext } from "@/lib/medusa-region";
 import { normalizeMedusaProduct } from "./normalizeMedusaProduct";
 import { productHref } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/routes";
+import { getCheapestVariantPrice } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/medusaPricing";
 import { saturnVBeigeProduct } from "@/components/sites/arte-collective-com-1c7b1bdd/collections-best-sellers-products-saturn-v-beige-ae4f1ab4/data";
 
 /**
@@ -44,16 +45,13 @@ async function fetchMedusaProductByHandle(
 }
 
 function toRelatedProduct(product: HttpTypes.StoreProduct): Product {
-  const firstVariant = product.variants?.[0];
-  const calc = firstVariant?.calculated_price;
-  const price = calc?.calculated_amount ?? 0;
-  const original = calc?.original_amount ?? null;
+  const { price, compareAtPrice } = getCheapestVariantPrice(product);
 
   return {
     handle: product.handle ?? product.id,
     title: product.title,
     price,
-    compareAtPrice: original != null && original > price ? original : undefined,
+    compareAtPrice,
     image: product.thumbnail ?? null,
     href: productHref(product.handle ?? product.id),
   };

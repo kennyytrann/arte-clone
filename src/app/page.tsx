@@ -55,7 +55,7 @@ export default async function Home() {
       <ProductCarousel
         eyebrow="New arrivals"
         heading="Fresh from"
-        headingAccent="The lab"
+        headingAccent="Japan"
         products={japaneseLegends}
         headingHref={collectionHref("japanese-legends")}
       />

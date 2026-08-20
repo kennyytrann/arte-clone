@@ -3,6 +3,7 @@ import { medusa, isMedusaConfigured } from "@/lib/medusa";
 import { getRegionContext } from "@/lib/medusa-region";
 import { getCollectionData } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/collections/getCollectionData";
 import { productHref } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/routes";
+import { getCheapestVariantPrice } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/medusaPricing";
 import type { HttpTypes } from "@medusajs/types";
 
 /**
@@ -13,16 +14,13 @@ import type { HttpTypes } from "@medusajs/types";
  */
 
 function toProduct(product: HttpTypes.StoreProduct): Product {
-  const firstVariant = product.variants?.[0];
-  const calc = firstVariant?.calculated_price;
-  const price = calc?.calculated_amount ?? 0;
-  const original = calc?.original_amount ?? null;
+  const { price, compareAtPrice } = getCheapestVariantPrice(product);
 
   return {
     handle: product.handle ?? product.id,
     title: product.title,
     price,
-    compareAtPrice: original != null && original > price ? original : undefined,
+    compareAtPrice,
     image: product.thumbnail ?? null,
     href: productHref(product.handle ?? product.id),
   };

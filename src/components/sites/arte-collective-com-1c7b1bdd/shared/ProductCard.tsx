@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { Product } from "@/types/product";
 
 export function ProductCard({ product }: { product: Product }) {
-  const cardClassName = "group relative block w-full bg-[#e5e5e5]";
+  const cardClassName = "group relative block w-full bg-white";
   const hasDiscount = product.compareAtPrice != null && product.compareAtPrice > product.price;
 
   const content = (
@@ -13,7 +13,7 @@ export function ProductCard({ product }: { product: Product }) {
           {product.badge}
         </span>
       ) : null}
-      <div className="relative aspect-[3/4] w-full overflow-hidden">
+      <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#e5e5e5]">
         {product.image ? (
           <Image
             src={product.image}

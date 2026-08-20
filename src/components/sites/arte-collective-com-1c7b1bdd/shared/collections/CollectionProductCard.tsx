@@ -5,7 +5,7 @@ import type { CollectionProduct } from "./types";
 const MONO = { fontFamily: "var(--font-roboto-mono), ui-monospace, monospace" };
 
 export function CollectionProductCard({ product }: { product: CollectionProduct }) {
-  const cardClassName = "group relative block w-full bg-[#e5e5e5]";
+  const cardClassName = "group relative block w-full bg-white";
   const hasDiscount = product.compareAtPrice != null && product.compareAtPrice > product.price;
 
   const content = (
@@ -34,7 +34,7 @@ export function CollectionProductCard({ product }: { product: CollectionProduct 
         </div>
       ) : null}
 
-      <div className="relative aspect-[3/4] w-full overflow-hidden">
+      <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#e5e5e5]">
         {product.image ? (
           <Image
             src={product.image}
