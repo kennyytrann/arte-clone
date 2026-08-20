@@ -14,25 +14,24 @@ import { DecorativeCTA } from "@/components/sites/arte-collective-com-1c7b1bdd/r
 import { Footer } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/Footer";
 import { ProductCarousel } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/ProductCarousel";
 import {
-  bestsellerProducts,
-  newArrivalProducts,
-  artemisProducts,
-  printOfWeekProducts,
-} from "@/components/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/data/products";
-import { attachProductHrefs } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/products/getProductData";
+  getBestSellerProducts,
+  getCategoryProductsForHomepage,
+  getAllProductsForHomepage,
+} from "@/components/sites/arte-collective-com-1c7b1bdd/shared/products/getHomepageProducts";
+import { staticRoutes, collectionHref } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/routes";
 
 export default async function Home() {
-  // These four arrays are the cloned homepage's decorative/reference product
-  // data (not fetched from Medusa — see the Medusa integration report's
-  // HOMEPAGE section). `attachProductHrefs` is the one place that decides
-  // which of them happen to have a resolvable /products/{handle} today
-  // (currently just "saturn-v-beige"); it's a single request-memoized
-  // lookup shared across all four lists, not one call per product.
-  const [bestsellers, newArrivals, artemis, printOfWeek] = await Promise.all([
-    attachProductHrefs(bestsellerProducts),
-    attachProductHrefs(newArrivalProducts),
-    attachProductHrefs(artemisProducts),
-    attachProductHrefs(printOfWeekProducts),
+  // Real Medusa data for the four commerce sections — see the Invasive
+  // Frames migration report for why each section maps to this specific
+  // source: Best Sellers is a Medusa Product Collection; Japanese Legends
+  // and Automotive Art are real taxonomy categories; Print of the Week is
+  // the full unfiltered catalog. Each fetch degrades to an empty array
+  // (never fake data) if Medusa is unreachable.
+  const [bestsellers, japaneseLegends, automotiveArt, allProducts] = await Promise.all([
+    getBestSellerProducts(),
+    getCategoryProductsForHomepage("japanese-legends"),
+    getCategoryProductsForHomepage("automotive-art"),
+    getAllProductsForHomepage(),
   ]);
 
   return (
@@ -47,6 +46,7 @@ export default async function Home() {
         heading="Explore our iconic"
         headingAccent="bestsellers"
         products={bestsellers}
+        headingHref={collectionHref("best-sellers")}
       />
 
       <LogoStrip />
@@ -56,7 +56,8 @@ export default async function Home() {
         eyebrow="New arrivals"
         heading="Fresh from"
         headingAccent="The lab"
-        products={newArrivals}
+        products={japaneseLegends}
+        headingHref={collectionHref("japanese-legends")}
       />
 
       <CollectionsStack />
@@ -66,11 +67,12 @@ export default async function Home() {
         eyebrow="Back to the moon"
         heading="Celebrate"
         headingAccent="Artemis II"
-        products={artemis}
+        products={automotiveArt}
+        headingHref={collectionHref("automotive-art")}
       />
 
       <VideoTabs />
-      <PrintOfWeekGrid products={printOfWeek} />
+      <PrintOfWeekGrid products={allProducts} headingHref={staticRoutes.allProducts} />
       <InstagramStrip />
       <FAQAccordion />
       <DecorativeCTA />

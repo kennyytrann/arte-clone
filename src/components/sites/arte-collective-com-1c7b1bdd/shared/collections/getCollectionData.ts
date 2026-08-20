@@ -2,7 +2,7 @@ import { cache } from "react";
 import type { CollectionData } from "./types";
 import { medusa, isMedusaConfigured } from "@/lib/medusa";
 import { getRegionContext } from "@/lib/medusa-region";
-import { normalizeMedusaCollection } from "./normalizeMedusaCollection";
+import { normalizeMedusaCollection, normalizeMedusaProductCollection } from "./normalizeMedusaCollection";
 import { attachProductHrefs } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/products/getProductData";
 import { spaceCollection } from "@/components/sites/arte-collective-com-1c7b1bdd/collections-space-8bb32a7c/data/collection";
 
@@ -46,11 +46,42 @@ async function fetchCategoryProducts(categoryId: string, regionId: string | unde
   }
 }
 
+async function fetchMedusaProductCollectionByHandle(handle: string) {
+  if (!isMedusaConfigured) return null;
+
+  try {
+    const { collections } = await medusa.store.collection.list({ handle, limit: 1 });
+    return collections[0] ?? null;
+  } catch (error) {
+    console.error(`[getCollectionData] Medusa product-collection lookup failed for handle "${handle}":`, error);
+    return null;
+  }
+}
+
+async function fetchProductCollectionProducts(collectionId: string, regionId: string | undefined) {
+  if (!isMedusaConfigured) return [];
+
+  try {
+    const { products } = await medusa.store.product.list({
+      collection_id: [collectionId],
+      limit: 100,
+      region_id: regionId,
+    });
+    return products;
+  } catch (error) {
+    console.error(`[getCollectionData] Failed to list products for collection "${collectionId}":`, error);
+    return [];
+  }
+}
+
 /**
- * URL handle → CollectionData. Medusa product categories are tried first
- * (see COLLECTIONS section of the integration report for why categories
- * rather than product collections); the local reference registry is used
- * only as a fallback.
+ * URL handle → CollectionData. A Medusa Product *Category* is tried first
+ * (the many-to-many taxonomy — Ferrari, Porsche, etc.), then a Medusa
+ * Product *Collection* (the single-membership merchandising grouping —
+ * currently just "Best Sellers") as a fallback, so e.g. `/collections/
+ * best-sellers` resolves through this same generic route without a
+ * dedicated page. The local reference registry is used only when neither
+ * matches.
  */
 export async function getCollectionData(handle: string): Promise<CollectionData | undefined> {
   const category = await fetchMedusaCategoryByHandle(handle);
@@ -59,6 +90,13 @@ export async function getCollectionData(handle: string): Promise<CollectionData 
     const region = await getRegionContext();
     const products = await fetchCategoryProducts(category.id, region?.regionId);
     return normalizeMedusaCollection(category, products);
+  }
+
+  const productCollection = await fetchMedusaProductCollectionByHandle(handle);
+  if (productCollection) {
+    const region = await getRegionContext();
+    const products = await fetchProductCollectionProducts(productCollection.id, region?.regionId);
+    return normalizeMedusaProductCollection(productCollection, products);
   }
 
   const reference = REFERENCE_COLLECTIONS[handle];
@@ -85,6 +123,18 @@ const listAllHandles = cache(async (): Promise<Set<string>> => {
       }
     } catch (error) {
       console.error("[getCollectionData] Failed to list Medusa category handles:", error);
+    }
+
+    try {
+      const { collections } = await medusa.store.collection.list({
+        limit: 1000,
+        fields: "handle",
+      });
+      for (const c of collections) {
+        if (c.handle) handles.add(c.handle);
+      }
+    } catch (error) {
+      console.error("[getCollectionData] Failed to list Medusa product-collection handles:", error);
     }
   }
 

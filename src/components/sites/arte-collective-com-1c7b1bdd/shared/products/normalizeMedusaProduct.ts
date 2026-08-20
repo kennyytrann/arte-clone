@@ -11,6 +11,12 @@ function normalizeVariant(variant: HttpTypes.StoreProductVariant): ProductSizeVa
   const original = calc?.original_amount ?? null;
   const hasDiscount = original != null && original > price;
 
+  const optionValues: Record<string, string> = {};
+  for (const opt of variant.options ?? []) {
+    const title = opt.option?.title;
+    if (title && opt.value) optionValues[title] = opt.value;
+  }
+
   return {
     id: variant.id,
     // Short label for the swatch box (e.g. "S"). Medusa has no separate
@@ -23,6 +29,7 @@ function normalizeVariant(variant: HttpTypes.StoreProductVariant): ProductSizeVa
     dimensions: variant.title ?? primaryOptionValue(variant),
     price,
     compareAtPrice: hasDiscount ? original! : undefined,
+    optionValues: Object.keys(optionValues).length > 0 ? optionValues : undefined,
   };
 }
 

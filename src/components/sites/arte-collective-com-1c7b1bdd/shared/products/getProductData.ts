@@ -30,7 +30,11 @@ async function fetchMedusaProductByHandle(
       handle,
       limit: 1,
       region_id: regionId,
-      fields: "*categories",
+      // *variants.options.option is required to know each option's *title*
+      // (e.g. "Size" vs "Frame") — the Store API's default variant fields
+      // include the option value but not which axis it belongs to, which
+      // VariantSelector needs to resolve a 2-option (Size × Frame) product.
+      fields: "*categories,*variants.options.option",
     });
     return products[0] ?? null;
   } catch (error) {

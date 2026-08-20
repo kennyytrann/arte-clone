@@ -8,6 +8,7 @@
 export const staticRoutes = {
   home: "/",
   cart: "/cart",
+  allProducts: "/products",
   contact: "/pages/contact",
   privacyPolicy: "/policies/privacy-policy",
   refundPolicy: "/policies/refund-policy",

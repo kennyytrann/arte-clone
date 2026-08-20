@@ -2,7 +2,7 @@ import type { HttpTypes } from "@medusajs/types";
 import type { CollectionData, CollectionProduct } from "./types";
 import { productHref } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/routes";
 
-function normalizeProduct(product: HttpTypes.StoreProduct): CollectionProduct {
+export function normalizeProduct(product: HttpTypes.StoreProduct): CollectionProduct {
   const firstVariant = product.variants?.[0];
   const calc = firstVariant?.calculated_price;
   const price = calc?.calculated_amount ?? 0;
@@ -33,6 +33,28 @@ export function normalizeMedusaCollection(
     handle: category.handle,
     title: category.name,
     heroLabel: category.name,
+    products: products.map(normalizeProduct),
+    isReferenceData: false,
+  };
+}
+
+/**
+ * Same mapping as `normalizeMedusaCollection`, but for a Medusa Product
+ * Collection (e.g. "Best Sellers") rather than a Product Category — a
+ * product belongs to many categories but at most one collection, which is
+ * exactly the "also belongs to Best Sellers" merchandising relationship.
+ * Reuses the identical `CollectionData` shape so `CollectionPageTemplate`
+ * and `getCollectionData`'s category/collection fallback don't need to know
+ * which kind of grouping produced the page.
+ */
+export function normalizeMedusaProductCollection(
+  collection: HttpTypes.StoreCollection,
+  products: HttpTypes.StoreProduct[]
+): CollectionData {
+  return {
+    handle: collection.handle,
+    title: collection.title,
+    heroLabel: collection.title,
     products: products.map(normalizeProduct),
     isReferenceData: false,
   };

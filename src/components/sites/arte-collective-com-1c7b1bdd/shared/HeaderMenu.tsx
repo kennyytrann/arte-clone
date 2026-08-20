@@ -3,13 +3,15 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Search, X } from "lucide-react";
+import { X } from "lucide-react";
 import { staticRoutes } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/routes";
 import { useCart } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/CartProvider";
+import { HeaderSearch } from "./HeaderSearch";
 
 export interface HeaderCollectionLink {
   label: string;
-  icon: string;
+  /** Absent for the real automotive taxonomy — no themed icon asset exists for it, so the icon slot is hidden rather than showing a fabricated image. */
+  icon?: string;
   isNew?: boolean;
   /** Precomputed by the server Header wrapper — undefined means not linkable yet. */
   href?: string;
@@ -44,7 +46,7 @@ export function HeaderMenu({ collections }: { collections: HeaderCollectionLink[
         </Link>
 
         <div className="flex items-center gap-4">
-          <Search size={18} className="text-white" />
+          <HeaderSearch />
           <Link href={staticRoutes.cart} className="text-[13px] text-white">
             ({totalQuantity})&nbsp;CART
           </Link>
@@ -84,9 +86,11 @@ export function HeaderMenu({ collections }: { collections: HeaderCollectionLink[
               {collections.map((c) => {
                 const itemContent = (
                   <>
-                    <span className="relative block h-6 w-6 shrink-0 overflow-hidden rounded-full bg-white/10">
-                      <Image src={c.icon} alt="" fill className="object-cover" />
-                    </span>
+                    {c.icon ? (
+                      <span className="relative block h-6 w-6 shrink-0 overflow-hidden rounded-full bg-white/10">
+                        <Image src={c.icon} alt="" fill className="object-cover" />
+                      </span>
+                    ) : null}
                     <span className="text-[14px]">{c.label}</span>
                     {c.isNew ? (
                       <span className="ml-auto bg-arte-orange px-[6px] py-[2px] text-[9px] font-medium uppercase text-white">

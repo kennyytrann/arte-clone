@@ -15,6 +15,16 @@ export interface ProductSizeVariant {
   /** Absent when Medusa reports no discount for this variant. */
   compareAtPrice?: number;
   popular?: boolean;
+  /**
+   * Real Medusa option title -> value for this variant, e.g.
+   * `{ Size: "12x18", Frame: "Unframed" }`. Present only for live Medusa
+   * products (absent for the local reference registry). When a product has
+   * 2+ distinct option titles across its variants, VariantSelector renders a
+   * real per-axis selector (Size grid + Frame row) instead of the flat
+   * single-axis grid, so a 6-variant Size×Frame product resolves the exact
+   * variant instead of listing all 6 combinations under "Select size".
+   */
+  optionValues?: Record<string, string>;
 }
 
 /**
