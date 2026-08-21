@@ -4,7 +4,13 @@ import Image from "next/image";
 import type { CheckoutCart } from "@/lib/checkout";
 
 function formatPrice(amount: number, currencyCode: string) {
-  return `$${amount.toFixed(0)} ${currencyCode.toUpperCase()}`;
+  // Every price here has been a whole dollar amount until real Artelo
+  // shipping quotes (e.g. $4.91) started flowing through — round only when
+  // the amount actually has no fractional part, so existing whole-dollar
+  // prices keep displaying exactly as before ("$39") while real fractional
+  // ones show their true value instead of being silently rounded.
+  const formatted = Number.isInteger(amount) ? amount.toFixed(0) : amount.toFixed(2);
+  return `$${formatted} ${currencyCode.toUpperCase()}`;
 }
 
 export function OrderSummary({ cart }: { cart: CheckoutCart }) {

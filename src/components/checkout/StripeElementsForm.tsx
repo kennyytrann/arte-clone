@@ -54,7 +54,11 @@ function InnerForm({
       return;
     }
 
-    if (paymentIntent?.status === "succeeded" || paymentIntent?.status === "processing") {
+    if (
+      paymentIntent?.status === "succeeded" ||
+      paymentIntent?.status === "processing" ||
+      paymentIntent?.status === "requires_capture"
+    ) {
       await onAuthorized();
     } else {
       onError("Payment could not be authorized. Please try again.");

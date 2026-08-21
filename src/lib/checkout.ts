@@ -28,7 +28,8 @@ export interface ShippingMethod {
 export interface ShippingOption {
   id: string;
   name: string;
-  amount: number;
+  /** Null when a calculated-price option (e.g. Artelo) hasn't resolved a real price yet — never a fabricated 0 or placeholder. */
+  amount: number | null;
   description?: string;
 }
 
@@ -156,25 +157,93 @@ export async function updateCartAddresses(params: {
   return toCheckoutCart(cart);
 }
 
-export async function listShippingOptions(): Promise<ShippingOption[]> {
+/**
+ * Real cart data shaped for a calculated-price fulfillment provider (Artelo)
+ * — sent as the shipping option's `data` field, the documented channel for
+ * frontend-supplied custom data (see calculatePrice's second parameter).
+ * This exists because the fields Medusa fetches for the plain shipping-
+ * options listing don't include `email`, and a fulfillment provider's own
+ * module can't reach cross-module services to look it up itself — so the
+ * real, already-collected cart data (email/address/items) is passed
+ * explicitly instead. Never fabricated: every field comes straight off the
+ * real `cart` the customer has already filled in.
+ */
+function buildProviderCalculationData(cart: CheckoutCart): Record<string, unknown> {
+  return {
+    id: cart.id,
+    email: cart.email,
+    currency_code: cart.currencyCode,
+    shipping_address: cart.shippingAddress
+      ? {
+          first_name: cart.shippingAddress.firstName,
+          last_name: cart.shippingAddress.lastName,
+          address_1: cart.shippingAddress.addressLine1,
+          address_2: cart.shippingAddress.addressLine2 ?? "",
+          city: cart.shippingAddress.city,
+          province: cart.shippingAddress.province,
+          postal_code: cart.shippingAddress.postalCode,
+          country_code: cart.shippingAddress.countryCode,
+        }
+      : undefined,
+    items: cart.items.map((item) => ({
+      id: item.id,
+      variant_sku: item.variantSku,
+      quantity: item.quantity,
+      unit_price: item.unitPrice,
+    })),
+  };
+}
+
+/**
+ * Lists shipping options for the cart. Calculated-price options (Artelo)
+ * come back from Medusa's plain listing with no price yet — Medusa's own
+ * cart-fetch for that listing doesn't include the customer's email, which
+ * Artelo requires — so each one is resolved with an explicit follow-up
+ * calculate call carrying the real cart data. If that call fails, the
+ * option's `amount` stays null; it is never given a fabricated price.
+ */
+export async function listShippingOptions(cart: CheckoutCart): Promise<ShippingOption[]> {
+  const cartId = requireCartId();
   const { shipping_options } = await medusa.store.fulfillment.listCartOptions({
-    cart_id: requireCartId(),
+    cart_id: cartId,
   });
+
+  const needsCalculation = shipping_options.filter(
+    (o) => o.price_type === "calculated" && (o.amount === null || o.amount === undefined)
+  );
+  if (needsCalculation.length > 0) {
+    const data = buildProviderCalculationData(cart);
+    await Promise.all(
+      needsCalculation.map(async (option) => {
+        try {
+          const { shipping_option } = await medusa.store.fulfillment.calculate(option.id, {
+            cart_id: cartId,
+            data,
+          });
+          option.amount = shipping_option.amount;
+        } catch {
+          // Leave amount unset — the option is surfaced with no price
+          // rather than a guessed one; see ShippingOption.amount.
+        }
+      })
+    );
+  }
+
   return shipping_options.map((o) => ({
     id: o.id,
     name: o.name,
-    amount: o.amount,
+    amount: o.amount ?? null,
     description: o.type?.description,
   }));
 }
 
-export async function setShippingMethod(optionId: string): Promise<CheckoutCart> {
-  const { cart } = await medusa.store.cart.addShippingMethod(
+export async function setShippingMethod(optionId: string, cart: CheckoutCart): Promise<CheckoutCart> {
+  const { cart: updated } = await medusa.store.cart.addShippingMethod(
     requireCartId(),
-    { option_id: optionId },
+    { option_id: optionId, data: buildProviderCalculationData(cart) },
     { fields: CHECKOUT_FIELDS }
   );
-  return toCheckoutCart(cart);
+  return toCheckoutCart(updated);
 }
 
 /**

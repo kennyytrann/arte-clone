@@ -7,6 +7,8 @@ const CART_ID_STORAGE_KEY = "arte_medusa_cart_id";
 export interface CartLineItem {
   id: string;
   variantId: string | undefined;
+  /** Real Medusa variant SKU — also the Artelo Product ID for calculated shipping. */
+  variantSku: string | undefined;
   productTitle: string;
   variantTitle: string;
   quantity: number;
@@ -66,6 +68,7 @@ export function toCartLineItems(items: HttpTypes.StoreCart["items"]): CartLineIt
   return (items ?? []).map((item) => ({
     id: item.id,
     variantId: item.variant_id,
+    variantSku: item.variant_sku ?? undefined,
     productTitle: item.product_title ?? item.title,
     variantTitle: item.variant_title ?? item.title,
     quantity: item.quantity,

@@ -66,7 +66,7 @@ export default async function Home() {
       <ProductCarousel
         eyebrow="Back to the moon"
         heading="Celebrate"
-        headingAccent="Artemis II"
+        headingAccent="JDM"
         products={automotiveArt}
         headingHref={collectionHref("automotive-art")}
       />

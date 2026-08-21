@@ -127,7 +127,7 @@ export function CheckoutForm() {
     if (activeStep !== "delivery" || !cart) return;
     let cancelled = false;
     setDeliveryError(null);
-    listShippingOptions()
+    listShippingOptions(cart)
       .then((options) => {
         if (cancelled) return;
         setShippingOptions(options);
@@ -188,14 +188,14 @@ export function CheckoutForm() {
   }
 
   async function handleDeliverySubmit() {
-    if (!selectedOptionId) {
+    if (!selectedOptionId || !cart) {
       setDeliveryError("Choose a shipping option to continue.");
       return;
     }
     setDeliveryError(null);
     setSavingDelivery(true);
     try {
-      const updated = await setShippingMethod(selectedOptionId);
+      const updated = await setShippingMethod(selectedOptionId, cart);
       setCart(updated);
       setActiveStep("payment");
     } catch {
@@ -450,18 +450,22 @@ export function CheckoutForm() {
               {shippingOptions.map((option) => (
                 <label
                   key={option.id}
-                  className="flex cursor-pointer items-center justify-between border border-[#e5e5e5] px-4 py-3 text-[13px] text-arte-text"
+                  className={`flex items-center justify-between border border-[#e5e5e5] px-4 py-3 text-[13px] text-arte-text ${
+                    option.amount === null ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                  }`}
                 >
                   <span className="flex items-center gap-3">
                     <input
                       type="radio"
                       name="shipping-option"
                       checked={selectedOptionId === option.id}
+                      disabled={option.amount === null}
                       onChange={() => setSelectedOptionId(option.id)}
                     />
                     {option.name}
                   </span>
-                  <span>${option.amount.toFixed(0)}</span>
+                  {/* Real amounts (e.g. Artelo's $4.91) are shown at full precision — never rounded to whole dollars. */}
+                  <span>{option.amount === null ? "Unavailable" : `$${option.amount.toFixed(2)}`}</span>
                 </label>
               ))}
             </div>

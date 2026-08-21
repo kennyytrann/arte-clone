@@ -11,7 +11,11 @@ export const metadata: Metadata = {
 };
 
 function formatPrice(amount: number, currencyCode: string) {
-  return `$${amount.toFixed(0)} ${currencyCode.toUpperCase()}`;
+  // Same rationale as checkout/OrderSummary.tsx's formatPrice: real Artelo
+  // shipping totals (e.g. $4.91) need their actual decimal value shown,
+  // while existing whole-dollar prices keep displaying exactly as before.
+  const formatted = Number.isInteger(amount) ? amount.toFixed(0) : amount.toFixed(2);
+  return `$${formatted} ${currencyCode.toUpperCase()}`;
 }
 
 function formatStatus(status: string) {

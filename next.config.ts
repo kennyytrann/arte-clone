@@ -17,6 +17,15 @@ const nextConfig: NextConfig = {
         hostname: "localhost",
         port: "9000",
       },
+      // Production object storage — Medusa's FILE module now uploads
+      // through @medusajs/file-s3 to Cloudflare R2 (S3_FILE_URL in the
+      // backend's env). This is R2's own public bucket domain, not a
+      // secret — the same value already appears in every migrated
+      // product's image URL sent to the browser.
+      {
+        protocol: "https",
+        hostname: "pub-374d34c2f0ab4def8b3e93de0a4b9fe7.r2.dev",
+      },
       // No Medusa file-storage provider is configured yet (see the
       // integration report), so the seeded Saturn V poster product
       // references its images directly from the already-cloned frontend
