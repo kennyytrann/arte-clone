@@ -40,20 +40,38 @@ const EMPTY_ADDRESS: Address = {
   countryCode: "us",
 };
 
-function deriveStep(cart: CheckoutCart | null): StepKey {
-  if (!cart || !cart.email) return "email";
-  if (!cart.shippingAddress) return "shipping";
-  if (cart.shippingMethods.length === 0) return "delivery";
-  return "payment";
-}
-
 function isEmailValid(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 function isAddressComplete(a: Address) {
-  return Boolean(a.firstName && a.lastName && a.addressLine1 && a.city && a.province && a.postalCode);
+  return Boolean(
+    a.firstName &&
+      a.lastName &&
+      a.addressLine1 &&
+      a.city &&
+      a.province &&
+      a.postalCode
+  );
 }
+
+function deriveStep(cart: CheckoutCart | null): StepKey {
+  if (!cart || !cart.email) return "email";
+
+  if (
+    !cart.shippingAddress ||
+    !isAddressComplete(cart.shippingAddress)
+  ) {
+    return "shipping";
+  }
+
+  if (cart.shippingMethods.length === 0) return "delivery";
+
+  return "payment";
+}
+
+
+
 
 /**
  * Every address input below is a controlled component (value starts as

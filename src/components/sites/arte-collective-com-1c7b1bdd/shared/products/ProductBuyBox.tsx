@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import Image from "next/image";
 import { Star, ArrowDownRight } from "lucide-react";
 import type { ProductData, ProductSizeVariant } from "./types";
@@ -58,10 +58,31 @@ function resolvePricing(
 export function ProductBuyBox({ product }: { product: ProductData }) {
   const [selectedId, setSelectedId] = useState(product.variants[0]?.id);
   const variant = product.variants.find((v) => v.id === selectedId) ?? product.variants[0];
-  const { addItem, isLoading, error } = useCart();
+  const { addItem, error } = useCart();
   const pricing = variant ? resolvePricing(product.variants, variant) : null;
   const hasDiscount = pricing != null;
   const savePct = pricing?.savePct ?? 0;
+
+  // Dedicated add-pending state (not the global cart `isLoading`) so an add
+  // never locks the rest of the cart UI. addItem() returns as soon as the
+  // drawer + optimistic line are on screen, so this clears almost instantly —
+  // it exists only to swallow a jittery double-fire of the same click.
+  const [isAdding, setIsAdding] = useState(false);
+
+  const handleAdd = useCallback(async () => {
+    if (!variant || isAdding) return;
+    setIsAdding(true);
+    try {
+      await addItem(variant.id, 1, {
+        productTitle: product.title,
+        variantTitle: variant.label,
+        unitPrice: variant.price,
+        thumbnail: product.images[0] ?? null,
+      });
+    } finally {
+      setIsAdding(false);
+    }
+  }, [addItem, isAdding, product.images, product.title, variant]);
 
   return (
     <div className="sticky top-6 lg:top-8">
@@ -127,11 +148,11 @@ export function ProductBuyBox({ product }: { product: ProductData }) {
 
       <button
         type="button"
-        disabled={!variant || isLoading}
-        onClick={() => variant && addItem(variant.id)}
+        disabled={!variant || isAdding}
+        onClick={handleAdd}
         className="mt-5 w-full bg-arte-orange py-3.5 text-[14px] font-semibold uppercase tracking-wide text-white transition-colors hover:bg-arte-orange-dark disabled:opacity-60"
       >
-        {isLoading ? "Adding..." : "Add to cart"}
+        {isAdding ? "Adding..." : "Add to cart"}
       </button>
       {error ? (
         <p className="mt-2 text-center text-[11px] text-red-600">{error}</p>

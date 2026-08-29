@@ -3,12 +3,15 @@ import { Header } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/H
 import { Footer } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/Footer";
 import { ProductCarousel } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/ProductCarousel";
 import { collectionHref } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/routes";
+import { getInstagramPhotos } from "./getHomepageProducts";
 import { ProductGallery } from "./ProductGallery";
 import { ProductBuyBox } from "./ProductBuyBox";
 import { InstagramStrip } from "./InstagramStrip";
 import type { ProductData } from "./types";
 
-export function ProductPageTemplate({ product }: { product: ProductData }) {
+export async function ProductPageTemplate({ product }: { product: ProductData }) {
+  const photos = await getInstagramPhotos();
+
   return (
     <main className="min-h-screen w-full bg-white">
       <AnnouncementBar />
@@ -31,7 +34,7 @@ export function ProductPageTemplate({ product }: { product: ProductData }) {
         />
       ) : null}
 
-      <InstagramStrip />
+      <InstagramStrip photos={photos} />
       <Footer />
     </main>
   );

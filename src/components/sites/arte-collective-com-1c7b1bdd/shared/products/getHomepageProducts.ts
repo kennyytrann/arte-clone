@@ -87,3 +87,26 @@ export async function getAllProductsForHomepage(limit = 8): Promise<Product[]> {
     return [];
   }
 }
+
+/**
+ * "Seen in the Wild" Instagram strip — real product photos from the live
+ * Invasive Frames catalog (same `wix_handle_id` real-vs-reference signal as
+ * `getAllProductsForHomepage`), never stock/placeholder images. Region
+ * context isn't needed since only the thumbnail is used, not price.
+ */
+export async function getInstagramPhotos(limit = 8): Promise<string[]> {
+  if (!isMedusaConfigured) return [];
+  try {
+    const { products } = await medusa.store.product.list({
+      limit: 100,
+      fields: "+metadata,+thumbnail",
+    });
+    const realCatalog = products.filter(
+      (p) => (p.metadata as Record<string, unknown> | null)?.wix_handle_id && p.thumbnail
+    );
+    return realCatalog.slice(0, limit).map((p) => p.thumbnail!);
+  } catch (error) {
+    console.error("[getHomepageProducts] Failed to load Instagram photos:", error);
+    return [];
+  }
+}

@@ -10,13 +10,12 @@ export function CartItemRow({ item }: { item: CartLineItem }) {
   const hasDiscount =
     item.compareAtUnitPrice != null && item.compareAtUnitPrice > item.unitPrice;
   const lineTotal = item.unitPrice * item.quantity;
+  const atMinQuantity = item.quantity <= 1;
 
   function decrease() {
-    if (item.quantity <= 1) {
-      removeItem(item.id);
-    } else {
-      updateItem(item.id, item.quantity - 1);
-    }
+    // Quantity floor is 1 — removing a line is the trash button's job only.
+    if (atMinQuantity) return;
+    updateItem(item.id, item.quantity - 1);
   }
 
   function increase() {
@@ -61,9 +60,9 @@ export function CartItemRow({ item }: { item: CartLineItem }) {
           <button
             type="button"
             aria-label="Decrease quantity"
-            disabled={isLoading}
+            disabled={isLoading || atMinQuantity}
             onClick={decrease}
-            className="flex h-[34px] w-[34px] items-center justify-center text-arte-text-muted disabled:opacity-50"
+            className="flex h-[34px] w-[34px] items-center justify-center text-arte-text-muted disabled:opacity-40"
           >
             <Minus size={14} />
           </button>

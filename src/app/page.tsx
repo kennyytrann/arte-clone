@@ -17,6 +17,7 @@ import {
   getBestSellerProducts,
   getCategoryProductsForHomepage,
   getAllProductsForHomepage,
+  getInstagramPhotos,
 } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/products/getHomepageProducts";
 import { staticRoutes, collectionHref } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/routes";
 
@@ -27,11 +28,12 @@ export default async function Home() {
   // and Automotive Art are real taxonomy categories; Print of the Week is
   // the full unfiltered catalog. Each fetch degrades to an empty array
   // (never fake data) if Medusa is unreachable.
-  const [bestsellers, japaneseLegends, automotiveArt, allProducts] = await Promise.all([
+  const [bestsellers, japaneseLegends, automotiveArt, allProducts, instagramPhotos] = await Promise.all([
     getBestSellerProducts(),
     getCategoryProductsForHomepage("japanese-legends"),
     getCategoryProductsForHomepage("automotive-art"),
     getAllProductsForHomepage(),
+    getInstagramPhotos(),
   ]);
 
   return (
@@ -73,7 +75,7 @@ export default async function Home() {
 
       <VideoTabs />
       <PrintOfWeekGrid products={allProducts} headingHref={staticRoutes.allProducts} />
-      <InstagramStrip />
+      <InstagramStrip photos={instagramPhotos} />
       <FAQAccordion />
       <DecorativeCTA />
       <Footer />
