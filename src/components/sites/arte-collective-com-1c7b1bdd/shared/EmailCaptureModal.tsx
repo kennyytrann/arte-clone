@@ -18,15 +18,21 @@ export function EmailCaptureModal() {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-      <div className="relative w-full max-w-[380px] overflow-hidden bg-[#211b1c] text-white">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
+      onClick={() => setOpen(false)}
+    >
+      <div
+        className="relative w-full max-w-[380px] overflow-hidden bg-[#211b1c] text-white"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
           type="button"
           aria-label="Close"
           onClick={() => setOpen(false)}
-          className="absolute right-3 top-3 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-white/20"
+          className="absolute right-3 top-3 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-black/40 text-white transition-colors hover:bg-black/60"
         >
-          <X size={14} />
+          <X size={14} className="text-white opacity-100" />
         </button>
 
         <div className="relative flex h-[130px] items-center justify-center bg-[#3a2f2c]">

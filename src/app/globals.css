@@ -4,6 +4,10 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Hover-capable pointers only — used to gate the product-card hover effect so
+   touch devices keep the plain, un-hovered card (no sticky hover state). */
+@custom-variant can-hover (@media (hover: hover) and (pointer: fine));
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -135,5 +139,69 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+/* Homepage "Inspired by" marquee (see root-8a5edab2/LogoStrip.tsx).
+   The supplied strip artwork is rendered as a repeat-x background and scrolled
+   with background-position, so there is exactly ONE image decode and the loop
+   is mathematically seamless — no second DOM copy to misalign, no gap can open
+   at any viewport width. One tile-width of travel per cycle; repeat-x makes it
+   continuous. Tile width (and matching strip height) differ per breakpoint so
+   the logos stay readable on small screens. */
+@keyframes inspired-by-marquee {
+  from {
+    background-position-x: 0;
+  }
+  to {
+    background-position-x: calc(-1 * var(--inspired-tile));
+  }
+}
+
+.inspired-by-marquee {
+  /* Tile width also sets the rendered strip height (aspect locked via
+     `background-size: <w> auto`). Artwork is 1996×245 (1944 + 26px whitespace
+     re-added to each edge so the Louis Vuitton→Nike seam gap ≈125px matches
+     the interior brand spacing), so height = tile * 245/1996 ≈ tile * 0.1228.
+     Tile widths (and the paired durations) are scaled by 1996/1944 vs the
+     un-padded artwork so logo size, strip height and scroll speed are
+     unchanged — only the seam whitespace grew. 1130px tile ≈ 139px tall. */
+  --inspired-tile: 1130px;
+  background-image: var(--inspired-src);
+  background-repeat: repeat-x;
+  background-position: 0 center;
+  background-size: var(--inspired-tile) auto;
+  animation: inspired-by-marquee 56s linear infinite;
+}
+
+@media (min-width: 640px) {
+  .inspired-by-marquee {
+    --inspired-tile: 1643px; /* strip ≈202px tall from sm up */
+    animation-duration: 77s;
+  }
+}
+
+/* Soft fade to the container background at both edges. Percentage stops so the
+   fade scales with the marquee width instead of eating a fixed chunk on mobile. */
+.inspired-by-marquee-mask {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 8%,
+    #000 92%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 8%,
+    #000 92%,
+    transparent 100%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .inspired-by-marquee {
+    animation: none;
   }
 }

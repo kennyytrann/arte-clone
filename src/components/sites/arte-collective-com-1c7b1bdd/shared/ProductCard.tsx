@@ -1,6 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@/types/product";
+import {
+  productCardDetailsClass,
+  productCardImageBoxClass,
+  productCardImageClass,
+  productCardImageOverlayClass,
+} from "@/components/sites/arte-collective-com-1c7b1bdd/shared/productCardHover";
 
 export function ProductCard({ product }: { product: Product }) {
   const cardClassName = "group relative block w-full bg-white";
@@ -13,20 +19,21 @@ export function ProductCard({ product }: { product: Product }) {
           {product.badge}
         </span>
       ) : null}
-      <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#e5e5e5]">
+      <div className={productCardImageBoxClass}>
         {product.image ? (
           <Image
             src={product.image}
             alt={product.title}
             fill
             sizes="240px"
-            className="object-cover transition-opacity duration-200"
+            className={productCardImageClass}
           />
         ) : null}
+        <span aria-hidden className={productCardImageOverlayClass} />
       </div>
       <div className="px-1 py-3">
         <p className="truncate text-[13px] text-arte-text">{product.title}</p>
-        <p className="mt-1 text-[13px]">
+        <p className={`mt-1 text-[13px] ${productCardDetailsClass}`}>
           {hasDiscount ? (
             <span className="mr-2 text-arte-text-muted line-through">
               ${product.compareAtPrice!.toFixed(0)}

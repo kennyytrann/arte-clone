@@ -1,6 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { CollectionProduct } from "./types";
+import {
+  productCardDetailsClass,
+  productCardImageBoxClass,
+  productCardImageClass,
+  productCardImageOverlayClass,
+} from "@/components/sites/arte-collective-com-1c7b1bdd/shared/productCardHover";
 
 const MONO = { fontFamily: "var(--font-roboto-mono), ui-monospace, monospace" };
 
@@ -34,21 +40,22 @@ export function CollectionProductCard({ product }: { product: CollectionProduct 
         </div>
       ) : null}
 
-      <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#e5e5e5]">
+      <div className={productCardImageBoxClass}>
         {product.image ? (
           <Image
             src={product.image}
             alt={product.title}
             fill
             sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
-            className="object-cover transition-opacity duration-200 group-hover:opacity-90"
+            className={productCardImageClass}
           />
         ) : null}
+        <span aria-hidden className={productCardImageOverlayClass} />
       </div>
 
       <div className="px-1 py-3">
         <p className="truncate text-[13px] text-arte-text">{product.title}</p>
-        <p className="mt-1 text-[13px]">
+        <p className={`mt-1 text-[13px] ${productCardDetailsClass}`}>
           {hasDiscount ? (
             <span className="mr-2 text-arte-text-muted line-through">
               ${product.compareAtPrice!.toFixed(0)}

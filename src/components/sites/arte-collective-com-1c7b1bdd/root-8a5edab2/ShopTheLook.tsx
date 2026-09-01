@@ -2,11 +2,34 @@ import Image from "next/image";
 
 const THEME = "/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/images/theme/";
 
-const looks = [
-  { image: THEME + "Story_1.png", count: 7, dots: 3 },
-  { image: THEME + "Story_2_89823f1a-539e-474d-94c7-91abe4cd1815.png", count: 4, dots: 2 },
-  { image: THEME + "Story_7.png", count: 6, dots: 3 },
-  { image: THEME + "Story_9.png", count: 6, dots: 4 },
+/**
+ * The two paired room shots for "Shop the look".
+ *
+ * - `count` drives the number badge on the "See the full set" button. Set to 2
+ *   for both for now — change it here.
+ * - `href` is intentionally `null`: the two set destinations don't exist yet, so
+ *   the cards render non-interactive, exactly like the previous four-card
+ *   version (which also had no links). When the collections are defined, give
+ *   each a real path and wrap the card in `next/link`.
+ */
+const looks: {
+  image: string;
+  alt: string;
+  count: number;
+  href: string | null;
+}[] = [
+  {
+    image: THEME + "shop-the-look-1.png",
+    alt: "Toyota Supra poster pair hanging in a dark, moody living room",
+    count: 2,
+    href: null,
+  },
+  {
+    image: THEME + "shop-the-look-2.png",
+    alt: "Automotive poster pair hanging in a bright, modern office",
+    count: 2,
+    href: null,
+  },
 ];
 
 export function ShopTheLook() {
@@ -24,25 +47,29 @@ export function ShopTheLook() {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      {/* 4 portrait cards -> 2 large landscape cards. Stacks on phones,
+          side-by-side from tablet (md) up. */}
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         {looks.map((look, i) => (
-          <div key={i} className="relative aspect-[3/4] overflow-hidden bg-neutral-200">
-            <Image src={look.image} alt="" fill className="object-cover" />
-            {Array.from({ length: look.dots }).map((_, d) => (
-              <span
-                key={d}
-                className="absolute h-3 w-3 rounded-full border border-arte-text bg-white"
-                style={{
-                  left: `${25 + d * 18}%`,
-                  top: `${30 + ((d * 23) % 45)}%`,
-                }}
-              />
-            ))}
-            <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-black/70 px-3 py-2 text-white">
-              <span className="text-[10px] font-medium uppercase tracking-wide">
+          <div
+            key={i}
+            className="relative aspect-[7/6] overflow-hidden rounded-lg bg-neutral-200"
+          >
+            <Image
+              src={look.image}
+              alt={look.alt}
+              fill
+              sizes="(min-width: 768px) 50vw, 100vw"
+              className="object-cover"
+            />
+
+            <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-md bg-black/80 px-4 py-2">
+              <span className="text-[10px] font-medium uppercase tracking-wide text-white">
                 See the full set
               </span>
-              <span className="text-[10px]">{look.count}</span>
+              <span className="rounded-[3px] border border-white/40 px-1 text-[10px] leading-none text-white">
+                {look.count}
+              </span>
             </div>
           </div>
         ))}
