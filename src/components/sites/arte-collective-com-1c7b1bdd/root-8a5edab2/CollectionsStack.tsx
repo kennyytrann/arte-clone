@@ -1,65 +1,60 @@
-"use client";
+import { getCollectionData } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/collections/getCollectionData";
+import { collectionHref } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/routes";
+import { CollectionsDeck, type DeckCollection } from "./CollectionsDeck";
 
-import { useState } from "react";
-import Image from "next/image";
-import { ArrowRight } from "lucide-react";
-
-const THEME = "/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/images/theme/";
-
-const collections = [
-  { label: "Historic Shots", count: 12, image: THEME + "History.png" },
-  { label: "Space", count: 18, image: THEME + "Space.png" },
-  { label: "Aerospace", count: 22, image: THEME + "Aerospatials.png" },
-  { label: "Science", count: 14, image: THEME + "Science.png" },
-  { label: "Social Sciences", count: 15, image: THEME + "Social_Sciences.png" },
+/**
+ * Homepage "Our exclusive collections" section.
+ *
+ * Server component: resolves a curated set of REAL storefront collections and
+ * hands them to the client `CollectionsDeck` (the animated stacked-card deck
+ * built from the reference MP4).
+ *
+ * Medusa product categories carry no dedicated hero image, so each card's art
+ * is the collection's first product thumbnail (real catalog imagery). If a
+ * handle doesn't resolve or has no usable image it is simply skipped.
+ */
+const COLLECTION_HANDLES = [
+  "japanese-legends",
+  "automotive-art",
+  "ferrari",
+  "porsche",
+  "formula-1",
 ];
 
-export function CollectionsStack() {
-  const [active, setActive] = useState(0);
+export async function CollectionsStack() {
+  const resolved = await Promise.all(
+    COLLECTION_HANDLES.map((handle) => getCollectionData(handle))
+  );
+
+  const collections: DeckCollection[] = resolved.flatMap((c): DeckCollection[] => {
+    if (!c) return [];
+    const image =
+      c.heroImage ?? c.products.find((p) => p.image)?.image ?? null;
+    if (!image) return [];
+    return [
+      {
+        handle: c.handle,
+        title: c.title,
+        count: c.products.length,
+        image,
+        href: collectionHref(c.handle),
+      },
+    ];
+  });
+
+  if (collections.length === 0) return null;
 
   return (
-    <section className="mx-auto max-w-[1200px] px-4 py-16 text-center sm:px-8">
-      <p className="mb-2 text-[11px] font-medium uppercase tracking-widest text-arte-text-muted">
+    <section className="mx-auto max-w-[1200px] overflow-hidden px-4 py-16 text-center sm:px-8">
+      <span className="inline-block rounded-full border border-[#e5e5e5] bg-white px-4 py-1.5 text-[11px] font-medium uppercase tracking-widest text-arte-text-muted">
         Explore more
-      </p>
-      <h2 className="mb-10 font-sans text-[28px] leading-tight text-arte-text sm:text-[34px]">
-        Our exclusive <em className="font-accent italic text-arte-orange">collections</em>
+      </span>
+      <h2 className="mb-9 mt-4 font-sans text-[30px] leading-tight text-arte-text sm:text-[38px]">
+        Our exclusive{" "}
+        <em className="font-accent italic text-arte-orange">collections</em>
       </h2>
 
-      <div className="relative mx-auto h-[300px] w-[220px]">
-        {collections.map((c, i) => {
-          const offset = i - active;
-          const isActive = offset === 0;
-          if (Math.abs(offset) > 2) return null;
-          return (
-            <button
-              key={c.label}
-              type="button"
-              onClick={() => setActive(i)}
-              className="absolute inset-0 overflow-hidden shadow-xl transition-all duration-300"
-              style={{
-                transform: `translateX(${offset * 14}px) rotate(${offset * 4}deg) scale(${1 - Math.abs(offset) * 0.06})`,
-                zIndex: 10 - Math.abs(offset),
-              }}
-            >
-              <Image src={c.image} alt={c.label} fill className="object-cover" />
-              {isActive ? (
-                <>
-                  <span className="absolute left-3 top-3 rounded bg-black/40 px-2 py-1 text-[11px] text-white">
-                    {c.count}
-                  </span>
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-4 text-left text-white">
-                    <p className="text-[15px] font-medium">{c.label}</p>
-                    <p className="flex items-center gap-1 text-[11px] uppercase tracking-wide">
-                      Discover <ArrowRight size={12} />
-                    </p>
-                  </div>
-                </>
-              ) : null}
-            </button>
-          );
-        })}
-      </div>
+      <CollectionsDeck collections={collections} />
     </section>
   );
 }

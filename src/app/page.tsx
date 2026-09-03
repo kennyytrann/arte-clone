@@ -8,7 +8,7 @@ import { CollectionsStack } from "@/components/sites/arte-collective-com-1c7b1bd
 import { AboutUs } from "@/components/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/AboutUs";
 import { VideoTabs } from "@/components/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/VideoTabs";
 import { PrintOfWeekGrid } from "@/components/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/PrintOfWeekGrid";
-import { InstagramStrip } from "@/components/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/InstagramStrip";
+import { CustomerReviews } from "@/components/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/CustomerReviews";
 import { FAQAccordion } from "@/components/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/FAQAccordion";
 import { DecorativeCTA } from "@/components/sites/arte-collective-com-1c7b1bdd/root-8a5edab2/DecorativeCTA";
 import { Footer } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/Footer";
@@ -17,23 +17,20 @@ import {
   getBestSellerProducts,
   getCategoryProductsForHomepage,
   getAllProductsForHomepage,
-  getInstagramPhotos,
 } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/products/getHomepageProducts";
 import { staticRoutes, collectionHref } from "@/components/sites/arte-collective-com-1c7b1bdd/shared/routes";
 
 export default async function Home() {
-  // Real Medusa data for the four commerce sections — see the Invasive
+  // Real Medusa data for the three commerce sections — see the Invasive
   // Frames migration report for why each section maps to this specific
-  // source: Best Sellers is a Medusa Product Collection; Japanese Legends
-  // and Automotive Art are real taxonomy categories; Print of the Week is
-  // the full unfiltered catalog. Each fetch degrades to an empty array
-  // (never fake data) if Medusa is unreachable.
-  const [bestsellers, japaneseLegends, automotiveArt, allProducts, instagramPhotos] = await Promise.all([
+  // source: Best Sellers is a Medusa Product Collection; Automotive Art is
+  // a real taxonomy category; Print of the Week is the full unfiltered
+  // catalog. Each fetch degrades to an empty array (never fake data) if
+  // Medusa is unreachable.
+  const [bestsellers, automotiveArt, allProducts] = await Promise.all([
     getBestSellerProducts(),
-    getCategoryProductsForHomepage("japanese-legends"),
     getCategoryProductsForHomepage("automotive-art"),
     getAllProductsForHomepage(),
-    getInstagramPhotos(),
   ]);
 
   return (
@@ -55,28 +52,20 @@ export default async function Home() {
       <ShopTheLook />
 
       <ProductCarousel
-        eyebrow="New arrivals"
-        heading="Fresh from"
-        headingAccent="Japan"
-        products={japaneseLegends}
-        headingHref={collectionHref("japanese-legends")}
-      />
-
-      <CollectionsStack />
-      <AboutUs />
-
-      <ProductCarousel
-        eyebrow="Back to the moon"
+        eyebrow="Back to Japan"
         heading="Celebrate"
         headingAccent="JDM"
         products={automotiveArt}
         headingHref={collectionHref("automotive-art")}
       />
 
+      <CollectionsStack />
+      <AboutUs />
+
       <VideoTabs />
       <PrintOfWeekGrid products={allProducts} headingHref={staticRoutes.allProducts} />
-      <InstagramStrip photos={instagramPhotos} />
       <FAQAccordion />
+      <CustomerReviews />
       <DecorativeCTA />
       <Footer />
     </main>

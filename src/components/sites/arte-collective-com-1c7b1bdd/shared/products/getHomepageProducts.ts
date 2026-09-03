@@ -89,6 +89,47 @@ export async function getAllProductsForHomepage(limit = 8): Promise<Product[]> {
 }
 
 /**
+ * Framed hero image of every real catalog product, for the homepage
+ * DecorativeCTA's two rotating side posters.
+ *
+ * ONLY the FIRST gallery image is used per product — `product.images[0].url`
+ * (the framed product version), exactly like the PDP gallery's primary image
+ * (`normalizeMedusaProduct` builds `images` from `product.images` in the same
+ * order). Secondary gallery images — room mockups, close-ups, size guides —
+ * are never included, and each product contributes at most one entry. Falls
+ * back to `thumbnail` only if a product has no `images` array at all.
+ * Same real-vs-reference `wix_handle_id` signal as the feeds above; region
+ * context isn't needed since only the image URL is used, not price.
+ */
+export async function getProductHeroImages(limit = 100): Promise<string[]> {
+  if (!isMedusaConfigured) return [];
+  try {
+    const { products } = await medusa.store.product.list({
+      limit,
+      // `images` is already in the Store API's default field set (see
+      // getProductData.ts, which reads product.images without requesting it);
+      // "+metadata" just adds the real-vs-reference signal on top.
+      fields: "+metadata",
+    });
+
+    const seen = new Set<string>();
+    const heroes: string[] = [];
+    for (const p of products) {
+      if (!(p.metadata as Record<string, unknown> | null)?.wix_handle_id) continue;
+      // FIRST image only — never images[1..n] (mockups / close-ups / guides).
+      const hero = p.images?.[0]?.url ?? p.thumbnail ?? null;
+      if (!hero || seen.has(hero)) continue;
+      seen.add(hero);
+      heroes.push(hero);
+    }
+    return heroes;
+  } catch (error) {
+    console.error("[getHomepageProducts] Failed to load product hero images:", error);
+    return [];
+  }
+}
+
+/**
  * "Seen in the Wild" Instagram strip — real product photos from the live
  * Invasive Frames catalog (same `wix_handle_id` real-vs-reference signal as
  * `getAllProductsForHomepage`), never stock/placeholder images. Region
