@@ -29,7 +29,7 @@ export function HeaderMenu({ collections }: { collections: HeaderCollectionLink[
 
   return (
     <header className="absolute inset-x-0 top-0 z-40 mt-[33px]">
-      <div className="flex h-[54px] items-center justify-between bg-[#252122]/50 px-4 sm:px-6">
+      <div className="relative flex h-[54px] items-center justify-between bg-[#252122]/50 px-4 sm:px-6">
         <button
           type="button"
           aria-label="Open menu"
@@ -41,8 +41,19 @@ export function HeaderMenu({ collections }: { collections: HeaderCollectionLink[
           <span className="block h-[2px] w-[22px] bg-white" />
         </button>
 
-        <Link href={staticRoutes.home} className="font-sans text-[22px] tracking-tight text-white">
-          arte<span className="text-arte-orange">.</span>
+        {/*
+          Absolutely positioned relative to this row, which spans the full
+          viewport width (the <header> above it is `absolute inset-x-0` with
+          no positioned ancestor narrower than the viewport). This centers
+          VisionFrames on the true viewport midpoint instead of the
+          leftover space between the asymmetrical hamburger/search/cart
+          controls, which is what flex `justify-between` was doing before.
+        */}
+        <Link
+          href={staticRoutes.home}
+          className="absolute left-1/2 -translate-x-1/2 whitespace-nowrap font-sans text-[22px] tracking-tight text-white"
+        >
+          VisionFrames
         </Link>
 
         <div className="flex items-center gap-4">
@@ -119,7 +130,7 @@ export function HeaderMenu({ collections }: { collections: HeaderCollectionLink[
             </ul>
 
             <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-4 text-[11px] text-white/70">
-              <span>Arte Collective</span>
+              <span>VisionFrames</span>
               <span>Instagram / Tiktok</span>
             </div>
           </div>

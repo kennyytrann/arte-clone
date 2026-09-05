@@ -58,8 +58,8 @@
 }
 
 :root {
-  --arte-orange: #fe6016;
-  --arte-orange-dark: #ee6325;
+  --arte-orange: #ff0000;
+  --arte-orange-dark: #e60000;
   --arte-text: #222222;
   --arte-text-muted: #858585;
   --background: oklch(1 0 0);

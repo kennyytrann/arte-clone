@@ -69,7 +69,7 @@ export function ContactForm() {
   if (submitted) {
     return (
       <div className="mx-auto max-w-[560px] px-4 py-16 text-center">
-        <span className="mb-4 inline-block rounded-[20px] bg-[#fce7de] px-3 py-[6px] font-mono text-[11px] font-medium uppercase tracking-wide text-arte-orange">
+        <span className="mb-4 inline-block rounded-[20px] bg-arte-orange/15 px-3 py-[6px] font-mono text-[11px] font-medium uppercase tracking-wide text-arte-orange">
           Contact
         </span>
         <h2 className="mb-3 font-sans text-[24px] font-medium text-arte-text">
@@ -84,7 +84,7 @@ export function ContactForm() {
 
   return (
     <div className="mx-auto max-w-[560px] px-4 py-16 text-center sm:px-0">
-      <span className="mb-4 inline-block rounded-[20px] bg-[#fce7de] px-3 py-[6px] font-mono text-[11px] font-medium uppercase tracking-wide text-arte-orange">
+      <span className="mb-4 inline-block rounded-[20px] bg-arte-orange/15 px-3 py-[6px] font-mono text-[11px] font-medium uppercase tracking-wide text-arte-orange">
         Contact
       </span>
       <h2 className="mb-3 font-sans text-[24px] font-medium text-arte-text">
